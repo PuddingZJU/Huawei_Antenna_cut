@@ -1,0 +1,331 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Algorithm">
+      <UniqueIdentifier>{2b02f40d-63a2-4337-9360-a233951b425f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Algorithm\Segmentation">
+      <UniqueIdentifier>{8445e20d-120d-4241-aa46-430ee810d106}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Algorithm\Segmentation\gmm">
+      <UniqueIdentifier>{07f3e61c-91a4-4709-8e99-225f629bd20a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Algorithm\Segmentation\GrabCut">
+      <UniqueIdentifier>{4599924e-f83f-4221-8616-8427726772f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Algorithm\Segmentation\interface">
+      <UniqueIdentifier>{cf4109ef-8874-483c-8b20-0b80e155cc2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Algorithm\Segmentation\LoG">
+      <UniqueIdentifier>{9320f693-0e0a-4550-ae28-f0bbfe6e70b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Algorithm\Segmentation\maxflow">
+      <UniqueIdentifier>{f5a95a52-f8f1-4e8c-9545-2cd5a78778f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{fe95ed34-b1fd-4ef0-adfb-c3b9d1c6f1fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\MainFrame">
+      <UniqueIdentifier>{b175e550-d750-48b6-8a6b-85b142988792}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\MainFrame\Interface">
+      <UniqueIdentifier>{31bf1a9e-d1a4-4444-aaae-6d01f6b21511}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\MainFrame\Manager">
+      <UniqueIdentifier>{82045e9e-67b7-44fb-8495-c4bba5f491c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="UI\Segmentation">
+      <UniqueIdentifier>{0164ef90-f577-4147-bb33-f8353d2e7d5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{3729df8d-a17b-45e4-9b0d-e2fc31d53b6b}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{6c224df0-4088-48a9-9d55-45414f2644e0}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Template">
+      <UniqueIdentifier>{f15d1beb-9615-42e2-84d7-04a3554979d4}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Segmentation\gmm\GMM.cpp">
+      <Filter>Algorithm\Segmentation\gmm</Filter>
+    </ClCompile>
+    <ClCompile Include="Segmentation\CommonFunc.cpp">
+      <Filter>Algorithm\Segmentation\GrabCut</Filter>
+    </ClCompile>
+    <ClCompile Include="Segmentation\SegmentInterface.cpp">
+      <Filter>Algorithm\Segmentation\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Segmentation\LoG\smooth.cpp">
+      <Filter>Algorithm\Segmentation\LoG</Filter>
+    </ClCompile>
+    <ClCompile Include="Segmentation\maxflow\graph.cpp">
+      <Filter>Algorithm\Segmentation\maxflow</Filter>
+    </ClCompile>
+    <ClCompile Include="Segmentation\maxflow\maxflow.cpp">
+      <Filter>Algorithm\Segmentation\maxflow</Filter>
+    </ClCompile>
+    <ClCompile Include="ElementPick.cpp">
+      <Filter>UI\MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="imagelist.cpp">
+      <Filter>UI\MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageListProjectFileHandle.cpp">
+      <Filter>UI\MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageWin.cpp">
+      <Filter>UI\MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>UI\MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>UI\MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiCommand.cpp">
+      <Filter>UI\MainFrame</Filter>
+    </ClCompile>
+    <ClCompile Include="OperationModeManager.cpp">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelManager.cpp">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectFileManager.cpp">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="UndoRedoManager.cpp">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SegCommand.cpp">
+      <Filter>UI\Segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="Segmentation.cpp">
+      <Filter>UI\Segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="SegmentationOptionPage.cpp">
+      <Filter>UI\Segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="SegmentationParamPanel.cpp">
+      <Filter>UI\Segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_DHAPP.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_imagelist.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ImageWin.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_MainWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ProjectFileInterface.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ProjectFileManager.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Segmentation.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SegmentationOptionPage.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SegmentationParamPanel.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_imagelist.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ImageWin.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_MainWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ProjectFileInterface.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ProjectFileManager.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Segmentation.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SegmentationOptionPage.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SegmentationParamPanel.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Segmentation\GrabCut.cpp">
+      <Filter>Algorithm\Segmentation\maxflow</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionPageManager.cpp">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_OptionPageManager.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_OptionPageManager.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Template\moc_OptionPageManager.cpp">
+      <Filter>Generated Files\Template</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Segmentation\gmm\GMM.h">
+      <Filter>Algorithm\Segmentation\gmm</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\gmm\Log.h">
+      <Filter>Algorithm\Segmentation\gmm</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\gmm\Macros.h">
+      <Filter>Algorithm\Segmentation\gmm</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\CommonFunc.h">
+      <Filter>Algorithm\Segmentation\GrabCut</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\GrabCut.h">
+      <Filter>Algorithm\Segmentation\GrabCut</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\SegmentInterface.h">
+      <Filter>Algorithm\Segmentation\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\LoG\smooth.h">
+      <Filter>Algorithm\Segmentation\LoG</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\maxflow\block.h">
+      <Filter>Algorithm\Segmentation\maxflow</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\maxflow\graph.h">
+      <Filter>Algorithm\Segmentation\maxflow</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageListProjectFileHandle.h">
+      <Filter>UI\MainFrame</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiCommand.h">
+      <Filter>UI\MainFrame</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandInterface.h">
+      <Filter>UI\MainFrame\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageWinEventInterface.h">
+      <Filter>UI\MainFrame\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="OperationModeManager.h">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelManager.h">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="UndoRedoManager.h">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SegCommand.h">
+      <Filter>UI\Segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_MainWindow.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SegmentationOptionPage.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SegmentationParamPanel.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_optionpagemanager.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Segmentation\maxflow\instances.inc">
+      <Filter>Algorithm\Segmentation\maxflow</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="icon\brush.png">
+      <Filter>UI\Resource Files</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="icon\cursor_arrow.png">
+      <Filter>UI\Resource Files</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="icon\cursor_inpainting.png">
+      <Filter>UI\Resource Files</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="icon\cursor_selection.png">
+      <Filter>UI\Resource Files</Filter>
+    </CustomBuildStep>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="ElementPick.h">
+      <Filter>UI\MainFrame</Filter>
+    </CustomBuild>
+    <CustomBuild Include="imagelist.h">
+      <Filter>UI\MainFrame</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ImageWin.h">
+      <Filter>UI\MainFrame</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MainWindow.h">
+      <Filter>UI\MainFrame</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ProjectFileInterface.h">
+      <Filter>UI\MainFrame\Interface</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ProjectFileManager.h">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MainWindow.ui">
+      <Filter>UI\Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SegmentationOptionPage.ui">
+      <Filter>UI\Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SegmentationParamPanel.ui">
+      <Filter>UI\Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Segmentation.h">
+      <Filter>UI\Segmentation</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SegmentationOptionPage.h">
+      <Filter>UI\Segmentation</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SegmentationParamPanel.h">
+      <Filter>UI\Segmentation</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DHAPP.qrc">
+      <Filter>UI\Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="optionpagemanager.ui">
+      <Filter>UI\Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="OptionPageManager.h">
+      <Filter>UI\MainFrame\Manager</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

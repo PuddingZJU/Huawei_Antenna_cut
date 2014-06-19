@@ -1,0 +1,28 @@
+<RCC>
+    <qresource prefix="/segmentation">
+        <file>icon/cursor_brush.png</file>
+        <file>icon/cursor_layer.png</file>
+    </qresource>
+    <qresource prefix="/inpainting">
+        <file>icon/cursor_inpainting.png</file>
+    </qresource>
+    <qresource prefix="/mainwin">
+        <file>icon/cursor_selection.png</file>
+        <file>icon/cursor_arrow.png</file>
+    </qresource>
+    <qresource prefix="/toolbar">
+        <file>icon/toolbar_close.png</file>
+        <file>icon/toolbar_open.bmp</file>
+        <file>icon/toolbar_add.png</file>
+        <file>icon/toolbar_search.png</file>
+        <file>icon/toolbar_stitching.png</file>
+        <file>icon/toolbar_down.png</file>
+        <file>icon/toolbar_up.png</file>
+        <file>icon/toolbar_InActualPixAct.png</file>
+        <file>icon/toolbar_InScreenAct.ico</file>
+        <file>icon/toolbar_database.ico</file>
+    </qresource>
+    <qresource prefix="/recent">
+        <file>recentFile.ini</file>
+    </qresource>
+</RCC>

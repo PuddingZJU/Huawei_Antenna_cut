@@ -1,0 +1,20 @@
+﻿Build started 2014/6/17 21:32:10.
+     1>Project "C:\Users\leon\Desktop\DHAPP\DHAPP\DHAPP.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "C:\Users\leon\Desktop\DHAPP\Debug\DHAPP.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       CustomBuild:
+         All outputs are up-to-date.
+       ClCompile:
+         All outputs are up-to-date.
+         All outputs are up-to-date.
+       Link:
+         All outputs are up-to-date.
+         DHAPP.vcxproj -> C:\Users\leon\Desktop\DHAPP\Debug\DHAPP.exe
+       FinalizeBuildStatus:
+         Deleting file "C:\Users\leon\Desktop\DHAPP\Debug\DHAPP.unsuccessfulbuild".
+         Touching "C:\Users\leon\Desktop\DHAPP\Debug\DHAPP.lastbuildstate".
+     1>Done Building Project "C:\Users\leon\Desktop\DHAPP\DHAPP\DHAPP.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.10
