@@ -13,7 +13,7 @@
 #include "SegmentationOptionPage.h"
 #include <vector>
 #include "SegCommand.h"
-
+#define PI 3.14159265
 /////eye
 struct DotPoint 
 {

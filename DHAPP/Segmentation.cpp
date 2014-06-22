@@ -6,16 +6,31 @@
 #include "Segmentation\CommonFunc.h"
 #include "Segmentation\SegmentInterface.h"
 #include "Segmentation\gmm\GMM.h"
-#include <nlopt.h>
+#include <nlopt.hpp>
 #include <math.h>
 using namespace NMH;
-
+#include <OperationModeManager.h>
 #define MAX_PIXEL_NUM	(300*1024)
-
+QImage opt_orig_image;
+QImage opt_mask_image;
+std::vector<double> init(3);
+cv::RotatedRect opt_objRect;
+cv::RotatedRect opt_backgroundRect;
+cv::Point2f opt_objRectPoints[4];
+cv::Point2f opt_backgroundRectPoints[4];
+int x_offset,y_offset;
+void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRect,cv::RotatedRect _backgroundRect);
+double opt_l_high,opt_l_low,opt_x_high,opt_x_low;
+void set_x_offset(int x_offset);
+void set_y_offset(int y_offset);
+double getBlockFeature(double angle,cv::Point2f p);
+void optimization_phase1(int tag); 
+double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data);
+bool no_k;
 Segmentation::Segmentation(SegmentationParamPanel* panel, MainWindow* win)
-:QObject(win),
-_panel(panel),
-_window(win)
+	:QObject(win),
+	_panel(panel),
+	_window(win)
 {
 	obj_paint = false;
 	bkg_paint = false;
@@ -71,7 +86,7 @@ void Segmentation::init_connects()
 
 }
 void Segmentation::ExportFrontImage(){
-		QString filepath = QFileDialog::getSaveFileName( 
+	QString filepath = QFileDialog::getSaveFileName( 
 		_panel, 
 		tr("Save As"),
 		QDir::currentPath(), 
@@ -256,6 +271,7 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 
 	QSize src_size = image.size();
 	QSize dst_size;
+	big_image = false;
 
 	if (big_image)
 	{
@@ -276,23 +292,8 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		}
 		//image.save("C:\\Users\\leon\\Desktop\\img.bmp","BMP");
 		//mask_img.save("C:\\Users\\leon\\Desktop\\mask.bmp","BMP");
-		for(int i=0;i<mask_img.width();i++){
-			for(int j=0;j<mask_img.height();j++){
-				QColor tmp = QColor::fromRgba(mask_img.pixel(i,j));
-				if(tmp.red()==255){
-					objectPoints.push_back(cv::Point2i(i,j));
-				}
-				if(tmp.red()==0){
-					backgroundPoints.push_back(cv::Point2i(i,j));
-				}
-			}
-		}
-		cv::RotatedRect objRect = cv::fitEllipse(objectPoints);
-		cv::RotatedRect backgroundRect = cv::fitEllipse(backgroundPoints);
-		cv::Point2f objRectPoints[4];
-		cv::Point2f backgroundRectPoints[4];
-		objRect.points(objRectPoints);
-		backgroundRect.points(backgroundRectPoints);
+
+
 		string inter_image_str("inter_image");
 		string inter_mask_image_str("inter_mask_image");
 
@@ -319,23 +320,80 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		//cv::imshow(inter_mask_image_str, inter_mask_image);
 		//cv::waitKey(-1);
 	}
+	for(int i=0;i<mask_img.width();i++){
+		for(int j=0;j<mask_img.height();j++){
+			QColor tmp = QColor::fromRgba(mask_img.pixel(i,j));
+			if(tmp.red()==255){
+				objectPoints.push_back(cv::Point2i(i,j));
+			}
+			if(tmp.red()==0){
+				backgroundPoints.push_back(cv::Point2i(i,j));
+			}
+		}
+	}
+	cv::RotatedRect objRect = cv::minAreaRect(objectPoints);
+	cv::RotatedRect backgroundRect = cv::minAreaRect(backgroundPoints);
+	objectPoints.clear();
+	backgroundPoints.clear();
+	cv::Point2f objRectPoints[4];
+	cv::Point2f backgroundRectPoints[4];
+	objRect.points(objRectPoints);
+	backgroundRect.points(backgroundRectPoints);
+	QImage test_image = image.copy();
+	QPainter p;
+	p.begin(&test_image);
+	p.setPen(Qt::SolidLine);
+	p.setPen(QColor(0,255,0));
+	for(int i=0;i<4;i++){
+		p.drawLine((int)objRectPoints[i].x,(int)objRectPoints[i].y,(int)objRectPoints[(i+1)%4].x,(int)objRectPoints[(i+1)%4].y);	
+	}
+	p.setPen(QColor(0,0,255));
+	for(int i=0;i<4;i++){
+		p.drawLine((int)backgroundRectPoints[i].x,(int)backgroundRectPoints[i].y,(int)backgroundRectPoints[(i+1)%4].x,(int)backgroundRectPoints[(i+1)%4].y);
+	}
 
-	if (_window->ui.actionLazyBrush->isChecked())
+	test_image.save("setp1_res.bmp","bmp");
+	opt_data_init(image,mask_img,objRect,backgroundRect);
+	optimization_phase1(0);
+	if(init[0]-90<1e-4){
+		p.drawLine(init[1],opt_l_high,init[1],opt_l_low);
+	}
+	else{
+		double res_k = tan(init[0] *PI /180.00);
+		double res_b = init[2]-init[1]*res_k;
+		double res_x1 = (opt_l_low-res_b)/res_k;
+		double res_x2 = (opt_l_high-res_b)/res_k;
+		p.drawLine(res_x1,opt_l_low,res_x2,opt_l_high);
+	}
+	optimization_phase1(1);
+	if(init[0]-90<1e-4){
+		p.drawLine(init[1],opt_l_high,init[1],opt_l_low);
+	}
+	else{
+		double res_k = tan(init[0]*PI /180.00);
+		double res_b = init[2]-init[1]*res_k;
+		double res_x1 = (opt_l_low-res_b)/res_k;
+		double res_x2 = (opt_l_high-res_b)/res_k;
+		p.drawLine(res_x1,opt_l_low,res_x2,opt_l_high);
+	}
+	p.end();
+	return test_image;
+	/*if (_window->ui.actionLazyBrush->isChecked())
 	{
-		segment_img = segment_lazybrush(image, mask_img, out_seg);
+	segment_img = segment_lazybrush(image, mask_img, out_seg);
 	}
 	else if (_window->ui.actionGrabCut->isChecked())
 	{
-		segment_img = segment_grabcut(image, mask_img, out_seg);
+	segment_img = segment_grabcut(image, mask_img, out_seg);
 	}
 	else if (_window->ui.actionGraphCut->isChecked())
 	{
-		segment_img = segment_hist(image, mask_img, out_seg);
+	segment_img = segment_hist(image, mask_img, out_seg);
 	}
 	else if (_window->ui.actionMixture->isChecked())
 	{
-		segment_img = segment_mixture(image, mask_img, out_seg);
-	}
+	segment_img = segment_mixture(image, mask_img, out_seg);
+	}*/
 
 	if (big_image)
 	{
@@ -369,7 +427,7 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		//cv::waitKey(-1);
 		partion_segment_to_elements(dst_out_seg);
 		segment_img = get_image_from_segmat(dst_out_seg);
-		
+
 	}
 	mask_result = segment_img;
 	return segment_img;
@@ -944,3 +1002,187 @@ void Segmentation::Reset()
 
 	current_imgWin->update();
 }
+
+void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRect,cv::RotatedRect _backgroundRect)
+{
+	opt_orig_image = _orig_image.copy();
+	opt_backgroundRect = _backgroundRect;
+	opt_objRect = _objRect;
+	opt_objRect.points(opt_objRectPoints);
+	opt_backgroundRect.points(opt_backgroundRectPoints);
+	cv::Point2f fixRect[4];
+	for (int i=0;i<4;i++)
+	{
+		int ii = opt_objRect.center.x < opt_objRectPoints[i].x;
+		int jj = opt_objRect.center.y < opt_objRectPoints[i].y;
+		if (ii == 0 && jj == 0)
+		{
+			fixRect[1] = opt_objRectPoints[i];
+		}
+		if (ii == 0 && jj == 1)
+		{
+			fixRect[0] = opt_objRectPoints[i];
+		}
+		if (ii == 1 && jj == 1)
+		{
+			fixRect[3] = opt_objRectPoints[i];
+		}
+		if (ii == 1 && jj == 0)
+		{
+			fixRect[2] = opt_objRectPoints[i];
+		}
+	}
+	for (int i=0;i<4;i++)
+	{
+		opt_objRectPoints[i] = fixRect[i];
+	}
+
+	for (int i=0;i<4;i++)
+	{
+		int ii = opt_backgroundRect.center.x < opt_backgroundRectPoints[i].x;
+		int jj = opt_backgroundRect.center.y < opt_backgroundRectPoints[i].y;
+		if (ii == 0 && jj == 0)
+		{
+			fixRect[1] = opt_backgroundRectPoints[i];
+		}
+		if (ii == 0 && jj == 1)
+		{
+			fixRect[0] = opt_backgroundRectPoints[i];
+		}
+		if (ii == 1 && jj == 1)
+		{
+			fixRect[3] = opt_backgroundRectPoints[i];
+		}
+		if (ii == 1 && jj == 0)
+		{
+			fixRect[2] = opt_backgroundRectPoints[i];
+		}
+	}
+	for (int i=0;i<4;i++)
+	{
+		opt_backgroundRectPoints[i] = fixRect[i];
+	}
+	opt_l_high = std::min(opt_backgroundRectPoints[0].y,opt_backgroundRectPoints[3].y);
+	opt_l_low = std::max(opt_backgroundRectPoints[1].y,opt_backgroundRectPoints[2].y);
+	x_offset = 5;
+	y_offset = 1;
+}
+
+void set_x_offset(int x_offset){
+	if (x_offset==0)
+	{
+		return;
+	}
+	x_offset = abs(x_offset);
+}
+void set_y_offset(int y_offset){
+	if (y_offset==0)
+	{
+		return;
+	}
+	y_offset = abs(y_offset);
+}
+
+double getBlockFeature(double angle,cv::Point2f p){
+	double res = 0;
+	double avg = 0;
+	no_k = fabs(angle-90)<1e-4;
+	QColor tmp1;
+	QColor tmp2;
+	int x;
+	double k2,b2,k,b;
+	if(!no_k)
+	{
+		k = tan(angle *PI /180.00);
+		b = p.y-k*p.x;
+		if (k!=0.0)
+		{
+			k2 = -1.0/k;
+			b2 = p.y-k2*p.x;
+		}
+	}
+	for (int h = opt_l_low;h<=opt_l_high;h++)
+	{	
+		if(!no_k)
+		{
+			x = (h-b)/k;
+			if (k!=0.0)
+			{
+				b2 = h-k2*x;
+			}
+		}
+		else{
+			x=p.x;
+		}
+		for (int j=1;j<=x_offset;j++)
+		{
+			if (no_k)
+			{
+				tmp1 = QColor::fromRgba(opt_orig_image.pixel(x+j,h));
+				opt_orig_image.setPixel(x+j,h,255);
+				tmp2 = QColor::fromRgba(opt_orig_image.pixel(x-j,h));
+				opt_orig_image.setPixel(x-j,h,255);
+			}
+			else{
+				/*if(x+j > opt_x_high || x+j < opt_x_low || k2*(x+j)+b2 > opt_l_high || k2*(x+j)+b2 < opt_l_low) 
+					continue;
+				if(x-j > opt_x_high || x-j < opt_x_low || k2*(x-j)+b2 > opt_l_high || k2*(x-j)+b2 < opt_l_low)
+					continue;*/
+				tmp1 = QColor::fromRgba(opt_orig_image.pixel(x+j,k2*(x+j)+b2));
+				
+				opt_orig_image.setPixel(x+j,k2*(x+j)+b2,255);
+				tmp2 = QColor::fromRgba(opt_orig_image.pixel(x-j,k2*(x-j)+b2));
+				opt_orig_image.setPixel(x-j,k2*(x-j)+b2,255);
+			}
+			res += abs(tmp2.red() - tmp1.red());
+			res += abs(tmp2.green() - tmp1.green());
+			res += abs(tmp2.blue() - tmp1.blue());
+			
+		}
+		avg += res/(opt_l_high-opt_l_low);
+
+	}
+	opt_orig_image.save("test.bmp","bmp");
+	return avg;
+}
+
+double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data)
+{
+
+	double angle  = x[0];
+	cv::Point2f p(x[1],x[2]);
+	return getBlockFeature(angle,p);
+}
+void optimization_phase1(int tag){
+	nlopt::opt opt(nlopt::GN_DIRECT_L, 3);
+	std::vector<double> lb(3);
+	std::vector<double> ub(3);
+	lb[0]=60;
+	ub[0]=120;
+	if(tag==0){
+	ub[1]=(double)std::min(opt_objRectPoints[0].x,opt_objRectPoints[1].x);
+	lb[1]=(double)std::max(opt_backgroundRectPoints[0].x,opt_backgroundRectPoints[1].x);
+	}
+	else if(tag == 1){
+		lb[1]=(double)std::min(opt_objRectPoints[2].x,opt_objRectPoints[3].x);
+		ub[1]=(double)std::max(opt_backgroundRectPoints[2].x,opt_backgroundRectPoints[3].x);
+	}
+	lb[2]=opt_l_low;
+	ub[2]=opt_l_high;
+	opt.set_lower_bounds(lb);
+	opt.set_upper_bounds(ub);
+	opt.set_xtol_rel(1e-4);
+	opt.set_max_objective(myfunc, NULL);
+	double maxf = 0;
+	opt_x_high =ub[1];
+	opt_x_low = lb[1];
+	init[0]=60;
+	init[1]=(lb[1]+ub[1])/2;
+	init[2]=(lb[2]+ub[2])/2;
+	qDebug()<<myfunc(init,init,NULL);
+	qDebug()<<init[0]<<"\t"<<init[1]<<"\t"<<init[2]<<endl;
+	nlopt::result result = opt.optimize(init,maxf);
+	qDebug()<<maxf;
+	qDebug()<<init[0]<<"\t"<<init[1]<<"\t"<<init[2]<<endl;
+}
+

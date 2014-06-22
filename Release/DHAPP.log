@@ -1,7 +1,7 @@
-﻿Build started 2014/6/17 14:18:28.
-     1>Project "C:\Users\leon\Desktop\DHAPP\DHAPP\DHAPP.vcxproj" on node 2 (build target(s)).
+﻿Build started 2014/6/23 0:14:28.
+     1>Project "C:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP\DHAPP.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Creating "C:\Users\leon\Desktop\DHAPP\Release\DHAPP.unsuccessfulbuild" because "AlwaysCreate" was specified.
+         Creating "C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.unsuccessfulbuild" because "AlwaysCreate" was specified.
        CustomBuild:
          All outputs are up-to-date.
        ClCompile:
@@ -9,11 +9,11 @@
          All outputs are up-to-date.
        Link:
          All outputs are up-to-date.
-         DHAPP.vcxproj -> C:\Users\leon\Desktop\DHAPP\Release\DHAPP.exe
+         DHAPP.vcxproj -> C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe
        FinalizeBuildStatus:
-         Deleting file "C:\Users\leon\Desktop\DHAPP\Release\DHAPP.unsuccessfulbuild".
-         Touching "C:\Users\leon\Desktop\DHAPP\Release\DHAPP.lastbuildstate".
-     1>Done Building Project "C:\Users\leon\Desktop\DHAPP\DHAPP\DHAPP.vcxproj" (build target(s)).
+         Deleting file "C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.unsuccessfulbuild".
+         Touching "C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.lastbuildstate".
+     1>Done Building Project "C:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP\DHAPP.vcxproj" (build target(s)).
 
 Build succeeded.
 

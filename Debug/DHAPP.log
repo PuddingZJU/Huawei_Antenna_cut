@@ -1,20 +1,63 @@
-﻿Build started 2014/6/17 21:32:10.
-     1>Project "C:\Users\leon\Desktop\DHAPP\DHAPP\DHAPP.vcxproj" on node 2 (build target(s)).
+﻿Build started 2014/6/23 0:08:37.
+     1>Project "C:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP\DHAPP.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Creating "C:\Users\leon\Desktop\DHAPP\Debug\DHAPP.unsuccessfulbuild" because "AlwaysCreate" was specified.
+         Creating "C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.unsuccessfulbuild" because "AlwaysCreate" was specified.
        CustomBuild:
          All outputs are up-to-date.
        ClCompile:
-         All outputs are up-to-date.
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I.\GeneratedFiles /IC:\SDK\Qt4\4.8.6\include /I.\GeneratedFiles\Debug /IC:\SDK\Qt4\4.8.6\include\qtmain /IC:\SDK\Qt4\4.8.6\include\QtCore /IC:\SDK\Qt4\4.8.6\include\QtGui /IC:\SDK\Qt4\4.8.6\include\QtXml /IC:\SDK\Qt4\4.8.6\include\QtXmlPatterns /IC:\SDK\opencv\build\include /IC:\SDK\opencv\build\include\opencv /IC:\SDK\opencv\build\include\opencv2 /IC:\Users\leon\Desktop\Huawei_Antenna_cut\thirdparty\NLOPT\include /IC:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP /Zi /nologo /W1 /WX- /Od /Oy- /D WIN32 /D QT_LARGEFILE_SUPPORT /D QT_CORE_LIB /D QT_GUI_LIB /D QT_XML_LIB /D QT_XMLPATTERNS_LIB /D QT_DLL /D SAVE_MINI_IMAGE /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\\" /Fd"C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Segmentation.cpp -I "/Platform/OutOfCore/include" -I "/Thirdparty/boost" -I "/Platform/OutOfCore/Library/stxxl/include" -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_RTLDLL -DBOOST_LIB_DIAGNOSTIC -DSTXXL_BOOST_TIMESTAMP -DSTXXL_BOOST_CONFIG -DSTXXL_BOOST_FILESYSTEM -DSTXXL_BOOST_THREADS -DSTXXL_BOOST_RANDOM /EHsc /EHs /wd4820 /wd4217 /wd4668 /wd4619 /wd4625 /wd4626 /wd4355 /wd4996 -D_SCL_SECURE_NO_DEPRECATE /F 16777216 /nologo  
+         Segmentation.cpp
+     1>Segmentation.cpp : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+     1>c:\users\leon\desktop\huawei_antenna_cut\dhapp\Segmentation.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+     1>c:\sdk\qt4\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
+                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
+     1>c:\users\leon\desktop\huawei_antenna_cut\dhapp\MainWindow.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+     1>c:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
          All outputs are up-to-date.
        Link:
-         All outputs are up-to-date.
-         DHAPP.vcxproj -> C:\Users\leon\Desktop\DHAPP\Debug\DHAPP.exe
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.exe" /NOLOGO /LIBPATH:C:\SDK\Qt4\4.8.6\lib /LIBPATH:C:\Users\leon\Desktop\Huawei_Antenna_cut\thirdparty\NLOPT\lib /LIBPATH:C:\SDK\opencv\build\x86\vc10\lib qtmaind.lib QtCored4.lib QtGuid4.lib QtXmld4.lib QtXmlPatternsd4.lib opencv_highgui249d.lib opencv_core249d.lib opencv_ml249d.lib opencv_imgproc249d.lib opencv_features2d249d.lib opencv_flann249d.lib opencv_gpu249d.lib opencv_nonfree249d.lib opencv_calib3d249d.lib nlopt.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.lib" /MACHINE:X86 C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\moc_OptionPageManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\OptionPageManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\GMM.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\CommonFunc.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\GrabCut.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\SegmentInterface.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\smooth.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\graph.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\maxflow.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\ElementPick.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\imagelist.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\ImageListProjectFileHandle.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\ImageWin.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\main.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\MainWindow.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\MultiCommand.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\OperationModeManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\PanelManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\ProjectFileManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\UndoRedoManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\SegCommand.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\Segmentation.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\SegmentationOptionPage.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\SegmentationParamPanel.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\qrc_DHAPP.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\moc_imagelist.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\moc_ImageWin.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\moc_MainWindow.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\moc_ProjectFileInterface.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\moc_ProjectFileManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\moc_Segmentation.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\moc_SegmentationOptionPage.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\moc_SegmentationParamPanel.obj  /STACK:16777216 /NOLOGO /DEBUG 
+          
+         LINK : C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.exe not found or not built by the last incremental link; performing full link
+         DHAPP.vcxproj -> C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.exe;#1" /manifest C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.exe.intermediate.manifest
        FinalizeBuildStatus:
-         Deleting file "C:\Users\leon\Desktop\DHAPP\Debug\DHAPP.unsuccessfulbuild".
-         Touching "C:\Users\leon\Desktop\DHAPP\Debug\DHAPP.lastbuildstate".
-     1>Done Building Project "C:\Users\leon\Desktop\DHAPP\DHAPP\DHAPP.vcxproj" (build target(s)).
+         Deleting file "C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.unsuccessfulbuild".
+         Touching "C:\Users\leon\Desktop\Huawei_Antenna_cut\Debug\DHAPP.lastbuildstate".
+     1>Done Building Project "C:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP\DHAPP.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.10
+Time Elapsed 00:00:04.62
