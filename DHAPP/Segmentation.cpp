@@ -10,9 +10,13 @@
 #include <math.h>
 using namespace NMH;
 #include <OperationModeManager.h>
+#include <fstream>
 #define MAX_PIXEL_NUM	(300*1024)
+using cv::Mat;
 QImage opt_orig_image;
 QImage opt_mask_image;
+QImage sobel_image;
+QImage laplace_image;
 std::vector<double> init(3);
 cv::RotatedRect opt_objRect;
 cv::RotatedRect opt_backgroundRect;
@@ -24,6 +28,8 @@ double opt_l_high,opt_l_low,opt_x_high,opt_x_low;
 void set_x_offset(int x_offset);
 void set_y_offset(int y_offset);
 double getBlockFeature(double angle,cv::Point2f p);
+double getSobelFeature(double angle,cv::Point2f p);
+double getLaplaceFreture(double angle,cv::Point2f p);
 void optimization_phase1(int tag); 
 double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data);
 bool no_k;
@@ -253,7 +259,13 @@ void Segmentation::RecordSeeds(ImageWin* imgwin,SeedRecords seeds)
 	//记录操作 
 	_window->GetUndoRedoManager()->AddCommand(new SegCommand(ON_Stroke,imgwin,this));
 }
-
+QImage mat2qimage(const cv::Mat& mat)
+{
+	/*cv::Mat rgb;
+	cv::cvtColor(mat, rgb, CV_BGR2RGB);*/
+	imwrite("so.jpg",mat);
+	return QImage("so.jpg"); 
+}
 QImage Segmentation::excute(ImageWin* current_imgWin)
 {
 	QImage image = current_imgWin->getImage();//eye
@@ -320,17 +332,57 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		//cv::imshow(inter_mask_image_str, inter_mask_image);
 		//cv::waitKey(-1);
 	}
-	for(int i=0;i<mask_img.width();i++){
-		for(int j=0;j<mask_img.height();j++){
-			QColor tmp = QColor::fromRgba(mask_img.pixel(i,j));
-			if(tmp.red()==255){
-				objectPoints.push_back(cv::Point2i(i,j));
-			}
-			if(tmp.red()==0){
-				backgroundPoints.push_back(cv::Point2i(i,j));
-			}
+	//std::ofstream out;
+	//out.open("pic_4.input");
+	//for(int i=0;i<mask_img.width();i++){
+	//	for(int j=0;j<mask_img.height();j++){
+	//		QColor tmp = QColor::fromRgba(mask_img.pixel(i,j));
+	//		if(tmp.red()==255){
+	//			out<<"o "<<i<<" "<<j<<endl;
+	//			objectPoints.push_back(cv::Point2i(i,j));
+	//		}
+	//		if(tmp.red()==0){
+	//			backgroundPoints.push_back(cv::Point2i(i,j));
+	//			out<<"b "<<i<<" "<<j<<endl;
+	//		}
+	//	}
+	//}
+	string fs = current_imgWin->getPath().toStdString();
+	string pth = "pic_";
+	pth.push_back(fs[fs.size()-5]);
+	pth += ".input";
+	std::ifstream in;
+	in.open(pth.c_str());
+	char type;
+	int _i,_j;
+	while (in>>type>>_i>>_j)
+	{
+		if (type == 'b')
+		{
+			backgroundPoints.push_back(cv::Point2i(_i,_j));
+		}
+		else{
+			objectPoints.push_back(cv::Point2i(_i,_j));
 		}
 	}
+	in.close();
+	cv::Mat im = cv::imread(fs.c_str(), CV_LOAD_IMAGE_COLOR); 
+	if (im.empty()) {
+		cout << "Cannot load image!" << endl;
+	}
+	cv::Mat sobel_mat(im.rows, im.cols, 1),laplace_mat(im.rows, im.cols, 1);
+	Mat im_gray;
+	cvtColor(im, im_gray, CV_RGB2GRAY);
+	//imshow("Gray", im_gray);
+	cv::Sobel( im_gray, sobel_mat, im_gray.depth(), 1, 0, 3);
+	
+	cv::Laplacian(im_gray,laplace_mat,im_gray.depth());
+	
+	//imshow("Gray", laplace_mat);
+	sobel_image = mat2qimage(sobel_mat);
+	laplace_image = mat2qimage(laplace_mat);
+	sobel_image.save("sobel.bmp","BMP");
+	laplace_image.save("laplace.bmp","BMP");
 	cv::RotatedRect objRect = cv::minAreaRect(objectPoints);
 	cv::RotatedRect backgroundRect = cv::minAreaRect(backgroundPoints);
 	objectPoints.clear();
@@ -354,6 +406,8 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 
 	test_image.save("setp1_res.bmp","bmp");
 	opt_data_init(image,mask_img,objRect,backgroundRect);
+	p.setPen(QColor(255,0,0));
+	
 	optimization_phase1(0);
 	if(init[0]-90<1e-4){
 		p.drawLine(init[1],opt_l_high,init[1],opt_l_low);
@@ -1064,7 +1118,7 @@ void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRec
 	}
 	opt_l_high = std::min(opt_backgroundRectPoints[0].y,opt_backgroundRectPoints[3].y);
 	opt_l_low = std::max(opt_backgroundRectPoints[1].y,opt_backgroundRectPoints[2].y);
-	x_offset = 5;
+	x_offset = 3;
 	y_offset = 1;
 }
 
@@ -1119,20 +1173,20 @@ double getBlockFeature(double angle,cv::Point2f p){
 			if (no_k)
 			{
 				tmp1 = QColor::fromRgba(opt_orig_image.pixel(x+j,h));
-				opt_orig_image.setPixel(x+j,h,255);
+				//opt_orig_image.setPixel(x+j,h,255);
 				tmp2 = QColor::fromRgba(opt_orig_image.pixel(x-j,h));
-				opt_orig_image.setPixel(x-j,h,255);
+			//	opt_orig_image.setPixel(x-j,h,255);
 			}
 			else{
-				/*if(x+j > opt_x_high || x+j < opt_x_low || k2*(x+j)+b2 > opt_l_high || k2*(x+j)+b2 < opt_l_low) 
+				if(x+j > opt_x_high || x+j < opt_x_low || k2*(x+j)+b2 > opt_l_high || k2*(x+j)+b2 < opt_l_low) 
 					continue;
 				if(x-j > opt_x_high || x-j < opt_x_low || k2*(x-j)+b2 > opt_l_high || k2*(x-j)+b2 < opt_l_low)
-					continue;*/
+					continue;
 				tmp1 = QColor::fromRgba(opt_orig_image.pixel(x+j,k2*(x+j)+b2));
 				
-				opt_orig_image.setPixel(x+j,k2*(x+j)+b2,255);
+				//opt_orig_image.setPixel(x+j,k2*(x+j)+b2,255);
 				tmp2 = QColor::fromRgba(opt_orig_image.pixel(x-j,k2*(x-j)+b2));
-				opt_orig_image.setPixel(x-j,k2*(x-j)+b2,255);
+				//opt_orig_image.setPixel(x-j,k2*(x-j)+b2,255);
 			}
 			res += abs(tmp2.red() - tmp1.red());
 			res += abs(tmp2.green() - tmp1.green());
@@ -1142,19 +1196,93 @@ double getBlockFeature(double angle,cv::Point2f p){
 		avg += res/(opt_l_high-opt_l_low);
 
 	}
-	opt_orig_image.save("test.bmp","bmp");
+	//opt_orig_image.save("test.bmp","bmp");
+	return avg;
+}
+double getSobelFeature(double angle,cv::Point2f p){
+	double res = 0;
+	double avg = 0;
+	no_k = fabs(angle-90)<1e-4;
+	QColor tmp1;
+	int x;
+	double k2,b2,k,b;
+	if(!no_k)
+	{
+		k = tan(angle *PI /180.00);
+		b = p.y-k*p.x;
+		if (k!=0.0)
+		{
+			k2 = -1.0/k;
+			b2 = p.y-k2*p.x;
+		}
+	}
+	for (int h = opt_l_low;h<=opt_l_high;h++)
+	{	
+		if(!no_k)
+		{
+			x = (h-b)/k;
+			if (k!=0.0)
+			{
+				b2 = h-k2*x;
+			}
+		}
+		else{
+			x=p.x;
+		}
+		tmp1 = QColor::fromRgba(sobel_image.pixel(x,h));
+		avg += tmp1.red()/(opt_l_high-opt_l_low);
+
+	}
 	return avg;
 }
 
+double getLaplaceFeature(double angle,cv::Point2f p){
+	double res = 0;
+	double avg = 0;
+	no_k = fabs(angle-90)<1e-4;
+	QColor tmp1;
+	int x;
+	double k2,b2,k,b;
+	if(!no_k)
+	{
+		k = tan(angle *PI /180.00);
+		b = p.y-k*p.x;
+		if (k!=0.0)
+		{
+			k2 = -1.0/k;
+			b2 = p.y-k2*p.x;
+		}
+	}
+	for (int h = opt_l_low;h<=opt_l_high;h++)
+	{	
+		if(!no_k)
+		{
+			x = (h-b)/k;
+			if (k!=0.0)
+			{
+				b2 = h-k2*x;
+			}
+		}
+		else{
+			x=p.x;
+		}
+		tmp1 = QColor::fromRgba(laplace_image.pixel(x,h));
+		avg += tmp1.red()/(opt_l_high-opt_l_low);
+
+	}
+	return avg;
+}
 double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data)
 {
 
 	double angle  = x[0];
 	cv::Point2f p(x[1],x[2]);
 	return getBlockFeature(angle,p);
+	/*return getSobelFeature(angle,p);*/
+	/*return getLaplaceFeature(angle,p);*/
 }
 void optimization_phase1(int tag){
-	nlopt::opt opt(nlopt::GN_DIRECT_L, 3);
+	nlopt::opt opt(nlopt::LN_COBYLA, 3);
 	std::vector<double> lb(3);
 	std::vector<double> ub(3);
 	lb[0]=60;
