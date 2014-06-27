@@ -33,6 +33,165 @@ double getLaplaceFreture(double angle,cv::Point2f p);
 void optimization_phase1(int tag); 
 double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data);
 bool no_k;
+
+cv::Mat guidedFilter(cv::Mat I, cv::Mat p, int r, double eps)
+{
+	/*
+		% GUIDEDFILTER   O(1) time implementation of guided filter.
+		%
+		%   - guidance image: I (should be a gray-scale/single channel image)
+		%   - filtering input image: p (should be a gray-scale/single channel image)
+		%   - local window radius: r
+		%   - regularization parameter: eps
+	*/
+
+	cv::Mat _I;
+	I.convertTo(_I, CV_64FC1);
+	I = _I;
+
+	cv::Mat _p;
+	p.convertTo(_p, CV_64FC1);
+	p = _p;
+
+	//[hei, wid] = size(I);
+	int hei = I.rows;
+	int wid = I.cols;
+
+	//N = boxfilter(ones(hei, wid), r); % the size of each local patch; N=(2r+1)^2 except for boundary pixels.
+	cv::Mat N;
+	cv::boxFilter(cv::Mat::ones(hei, wid, I.type()), N, CV_64FC1, cv::Size(r, r));
+
+	//mean_I = boxfilter(I, r) ./ N;
+	cv::Mat mean_I;
+	cv::boxFilter(I, mean_I, CV_64FC1, cv::Size(r, r));
+	
+	//mean_p = boxfilter(p, r) ./ N;
+	cv::Mat mean_p;
+	cv::boxFilter(p, mean_p, CV_64FC1, cv::Size(r, r));
+
+	//mean_Ip = boxfilter(I.*p, r) ./ N;
+	cv::Mat mean_Ip;
+	cv::boxFilter(I.mul(p), mean_Ip, CV_64FC1, cv::Size(r, r));
+
+	//cov_Ip = mean_Ip - mean_I .* mean_p; % this is the covariance of (I, p) in each local patch.
+	cv::Mat cov_Ip = mean_Ip - mean_I.mul(mean_p);
+
+	//mean_II = boxfilter(I.*I, r) ./ N;
+	cv::Mat mean_II;
+	cv::boxFilter(I.mul(I), mean_II, CV_64FC1, cv::Size(r, r));
+
+	//var_I = mean_II - mean_I .* mean_I;
+	cv::Mat var_I = mean_II - mean_I.mul(mean_I);
+
+	//a = cov_Ip ./ (var_I + eps); % Eqn. (5) in the paper;	
+	cv::Mat a = cov_Ip/(var_I + eps);
+
+	//b = mean_p - a .* mean_I; % Eqn. (6) in the paper;
+	cv::Mat b = mean_p - a.mul(mean_I);
+
+	//mean_a = boxfilter(a, r) ./ N;
+	cv::Mat mean_a;
+	cv::boxFilter(a, mean_a, CV_64FC1, cv::Size(r, r));
+	mean_a = mean_a/N;
+
+	//mean_b = boxfilter(b, r) ./ N;
+	cv::Mat mean_b;
+	cv::boxFilter(b, mean_b, CV_64FC1, cv::Size(r, r));
+	mean_b = mean_b/N;
+
+	//q = mean_a .* I + mean_b; % Eqn. (8) in the paper;
+	cv::Mat q = mean_a.mul(I) + mean_b;
+
+	return q;
+}
+
+void converToType(cv::Mat& mat, int mattype)
+{
+	cv::Mat _mat;
+	mat.convertTo(_mat, mattype);
+	mat = _mat;
+}
+
+void smooth_guidedfilter(IplImage* pInputImage)
+{
+	//I = double(imread('.\img_smoothing\cat.bmp')) / 255;
+	cv::Mat I(pInputImage, true);
+	converToType(I, CV_64FC1);
+	I = I/255.0;
+
+	//p = I;
+	cv::Mat p(I);
+
+	//r = 4; % try r=2, 4, or 8
+	double r = 4;
+
+	//eps = 0.2^2; % try eps=0.1^2, 0.2^2, 0.4^2
+	double eps = pow(0.2, 2);
+
+	//q = guidedfilter(I, p, r, eps);
+	cv::Mat q = guidedFilter(I, p, r, eps);
+
+	IplImage* iplImage = new IplImage(q);
+
+	cvConvertImage(iplImage, pInputImage);
+
+	delete iplImage;
+}
+
+void procEachImageChannel(IplImage* pInputImage, void proc(IplImage*))
+{
+	if(pInputImage->nChannels == 1) {
+		proc(pInputImage);
+	} else if(pInputImage->nChannels == 3) {
+		IplImage* lChannelImgs[3];
+		for(int i = 0; i < 3; i++) {
+			lChannelImgs[i] = cvCreateImage(
+				cvSize(pInputImage->width, pInputImage->height),
+				IPL_DEPTH_8U, 1);
+		}
+		cvSplit(pInputImage, lChannelImgs[0], lChannelImgs[1], lChannelImgs[2], NULL);
+		for(int i = 0; i < 3; i++) {
+			proc(lChannelImgs[i]);
+		}
+		cvMerge(lChannelImgs[0], lChannelImgs[1], lChannelImgs[2], NULL, pInputImage);
+
+		for(int i = 0; i < 3; i++) {
+			cvReleaseImage(&lChannelImgs[i]);
+		}
+	} else {
+		printf("unsupported channel number in enhance()\n");
+		assert(0);
+	}
+}
+
+
+
+void enhance_guidedfilter(IplImage* pInputImage)
+{
+	cv::Mat I(pInputImage, true);
+	converToType(I, CV_64FC1);
+
+	I = I/255.0;
+
+	//q = zeros(size(I));
+	cv::Mat q(cv::Mat::zeros(I.rows, I.cols, CV_64FC1));
+
+	//q(:, :, 1) = guidedfilter(I(:, :, 1), p(:, :, 1), r, eps);
+	cv::Mat p = I;
+	int r = 10;
+	double eps = 1.0;
+	q = guidedFilter(I, p, r, eps);
+
+	//I_enhanced = (I - q) * 5 + q;
+	cv::Mat I_enhanced = (I - q)*(5) + q;
+
+	IplImage* iplImage = new IplImage(I_enhanced);
+
+	cvConvertImage(iplImage, pInputImage);
+
+	delete iplImage;
+}
+
 Segmentation::Segmentation(SegmentationParamPanel* panel, MainWindow* win)
 	:QObject(win),
 	_panel(panel),
@@ -379,6 +538,16 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 	cv::Laplacian(im_gray,laplace_mat,im_gray.depth());
 	
 	//imshow("Gray", laplace_mat);
+	IplImage* sobel_ipl = new IplImage(sobel_mat);
+	IplImage* laplace_ipl = new IplImage(laplace_mat);
+	procEachImageChannel(sobel_ipl,smooth_guidedfilter);
+	procEachImageChannel(laplace_ipl,smooth_guidedfilter);
+	procEachImageChannel(sobel_ipl,enhance_guidedfilter);
+	procEachImageChannel(laplace_ipl,enhance_guidedfilter);
+	procEachImageChannel(sobel_ipl,enhance_guidedfilter);
+	procEachImageChannel(laplace_ipl,enhance_guidedfilter);
+	sobel_mat = Mat(sobel_ipl,true);
+	laplace_mat = Mat(laplace_ipl,true);
 	sobel_image = mat2qimage(sobel_mat);
 	laplace_image = mat2qimage(laplace_mat);
 	sobel_image.save("sobel.bmp","BMP");
@@ -1277,8 +1446,8 @@ double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_
 
 	double angle  = x[0];
 	cv::Point2f p(x[1],x[2]);
-	return getBlockFeature(angle,p);
-	/*return getSobelFeature(angle,p);*/
+	//return getBlockFeature(angle,p);
+	return getSobelFeature(angle,p);
 	/*return getLaplaceFeature(angle,p);*/
 }
 void optimization_phase1(int tag){
