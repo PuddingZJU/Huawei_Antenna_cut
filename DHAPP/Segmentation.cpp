@@ -11,6 +11,7 @@
 using namespace NMH;
 #include <OperationModeManager.h>
 #include <fstream>
+#include "myGMM.h"
 #define MAX_PIXEL_NUM	(300*1024)
 using cv::Mat;
 QImage opt_orig_image;
@@ -22,14 +23,16 @@ cv::RotatedRect opt_objRect;
 cv::RotatedRect opt_backgroundRect;
 cv::Point2f opt_objRectPoints[4];
 cv::Point2f opt_backgroundRectPoints[4];
-int x_offset,y_offset;
+int x_offset,y_offset,use_file=0,use_feature=2,use_color=0,use_enhance=1,use_gmm=1,isright=0;
 void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRect,cv::RotatedRect _backgroundRect);
 double opt_l_high,opt_l_low,opt_x_high,opt_x_low;
 void set_x_offset(int x_offset);
 void set_y_offset(int y_offset);
+double getGMMFeature(double angle,cv::Point2f p);
 double getBlockFeature(double angle,cv::Point2f p);
 double getSobelFeature(double angle,cv::Point2f p);
 double getLaplaceFreture(double angle,cv::Point2f p);
+myGMM *bgmm,*fgmm;
 void optimization_phase1(int tag); 
 double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data);
 bool no_k;
@@ -491,67 +494,106 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		//cv::imshow(inter_mask_image_str, inter_mask_image);
 		//cv::waitKey(-1);
 	}
-	//std::ofstream out;
-	//out.open("pic_4.input");
-	//for(int i=0;i<mask_img.width();i++){
-	//	for(int j=0;j<mask_img.height();j++){
-	//		QColor tmp = QColor::fromRgba(mask_img.pixel(i,j));
-	//		if(tmp.red()==255){
-	//			out<<"o "<<i<<" "<<j<<endl;
-	//			objectPoints.push_back(cv::Point2i(i,j));
-	//		}
-	//		if(tmp.red()==0){
-	//			backgroundPoints.push_back(cv::Point2i(i,j));
-	//			out<<"b "<<i<<" "<<j<<endl;
-	//		}
-	//	}
-	//}
+
 	string fs = current_imgWin->getPath().toStdString();
 	string pth = "pic_";
 	pth.push_back(fs[fs.size()-5]);
 	pth += ".input";
-	std::ifstream in;
-	in.open(pth.c_str());
-	char type;
-	int _i,_j;
-	while (in>>type>>_i>>_j)
-	{
-		if (type == 'b')
-		{
-			backgroundPoints.push_back(cv::Point2i(_i,_j));
-		}
-		else{
-			objectPoints.push_back(cv::Point2i(_i,_j));
+	use_file=1;
+	if(!use_file){
+		std::ofstream out;
+		out.open(pth);
+		for(int i=0;i<mask_img.width();i++){
+			for(int j=0;j<mask_img.height();j++){
+				QColor tmp = QColor::fromRgba(mask_img.pixel(i,j));
+				if(tmp.red()==255){
+					out<<"o "<<i<<" "<<j<<endl;
+					objectPoints.push_back(cv::Point2i(i,j));
+				}
+				if(tmp.red()==0){
+					backgroundPoints.push_back(cv::Point2i(i,j));
+					out<<"b "<<i<<" "<<j<<endl;
+				}
+			}
 		}
 	}
-	in.close();
+	
+	else{
+		std::ifstream in;
+		in.open(pth.c_str());
+		char type;
+		int _i,_j;
+		while (in>>type>>_i>>_j)
+		{
+			if (type == 'b')
+			{
+				backgroundPoints.push_back(cv::Point2i(_i,_j));
+			}
+			else{
+				objectPoints.push_back(cv::Point2i(_i,_j));
+			}
+		}
+		in.close();
+	}
 	cv::Mat im = cv::imread(fs.c_str(), CV_LOAD_IMAGE_COLOR); 
+	if (use_gmm)
+	{
+		double *fdata = new double[objectPoints.size()];
+		double *bdata = new double[backgroundPoints.size()];
+		for (int i = 0 ; i < objectPoints.size();i++)
+		{
+			fdata[i]= qGray(image.pixel(objectPoints[i].x,objectPoints[i].y));
+			//qDebug()<<fdata[i]<<endl;
+		}
+		for (int i = 0 ; i < backgroundPoints.size();i++)
+		{
+			bdata[i]= qGray(image.pixel(backgroundPoints[i].x,backgroundPoints[i].y));
+			//qDebug()<<bdata[i]<<endl;
+		}
+		fgmm = new myGMM(1,1);
+		fgmm->Train(fdata,objectPoints.size());
+		bgmm = new myGMM(1,1);
+		bgmm->Train(bdata,backgroundPoints.size());
+	}
 	if (im.empty()) {
 		cout << "Cannot load image!" << endl;
 	}
-	cv::Mat sobel_mat(im.rows, im.cols, 1),laplace_mat(im.rows, im.cols, 1);
+	cv::Mat sobel_mat(im.rows, im.cols, 1),laplace_mat(im.rows, im.cols, 1),sobel_mat_x(im.rows, im.cols, 1),sobel_mat_y(im.rows, im.cols, 1),abs_sobel_mat_x(im.rows, im.cols, 1),abs_sobel_mat_y(im.rows, im.cols, 1);
 	Mat im_gray;
 	cvtColor(im, im_gray, CV_RGB2GRAY);
 	//imshow("Gray", im_gray);
-	cv::Sobel( im_gray, sobel_mat, im_gray.depth(), 1, 0, 3);
+	if (use_feature==1 ){
+		cv::Sobel( im_gray, sobel_mat_x, im_gray.depth(), 1, 0, 3);
+		cv::Sobel( im_gray, sobel_mat_y, im_gray.depth(), 0, 1, 3);
+		cv::convertScaleAbs(sobel_mat_x,abs_sobel_mat_x);
+		cv::convertScaleAbs(sobel_mat_y,abs_sobel_mat_y);
+		cv::addWeighted(abs_sobel_mat_x,0.5,abs_sobel_mat_y,0.5,0,sobel_mat);
+		if (use_enhance)
+		{
+			IplImage* sobel_ipl = new IplImage(sobel_mat);
+			procEachImageChannel(sobel_ipl,smooth_guidedfilter);
+			procEachImageChannel(sobel_ipl,enhance_guidedfilter);
+			procEachImageChannel(sobel_ipl,enhance_guidedfilter);
+			sobel_mat = Mat(sobel_ipl,true);
+		}
+		sobel_image = mat2qimage(sobel_mat);
+		sobel_image.save("sobel.bmp","BMP");
+	}
+	if (use_feature==2){
+		cv::Laplacian(im_gray,laplace_mat,im_gray.depth());
+		//imshow("Gray", laplace_mat);
+		if (use_enhance)
+		{
+			IplImage* laplace_ipl = new IplImage(laplace_mat);
+			procEachImageChannel(laplace_ipl,smooth_guidedfilter);
+			procEachImageChannel(laplace_ipl,enhance_guidedfilter);
+			procEachImageChannel(laplace_ipl,enhance_guidedfilter);
+			laplace_mat = Mat(laplace_ipl,true);
+		}
+		laplace_image = mat2qimage(laplace_mat);
+		laplace_image.save("laplace.bmp","BMP");
+	}
 	
-	cv::Laplacian(im_gray,laplace_mat,im_gray.depth());
-	
-	//imshow("Gray", laplace_mat);
-	IplImage* sobel_ipl = new IplImage(sobel_mat);
-	IplImage* laplace_ipl = new IplImage(laplace_mat);
-	procEachImageChannel(sobel_ipl,smooth_guidedfilter);
-	procEachImageChannel(laplace_ipl,smooth_guidedfilter);
-	procEachImageChannel(sobel_ipl,enhance_guidedfilter);
-	procEachImageChannel(laplace_ipl,enhance_guidedfilter);
-	procEachImageChannel(sobel_ipl,enhance_guidedfilter);
-	procEachImageChannel(laplace_ipl,enhance_guidedfilter);
-	sobel_mat = Mat(sobel_ipl,true);
-	laplace_mat = Mat(laplace_ipl,true);
-	sobel_image = mat2qimage(sobel_mat);
-	laplace_image = mat2qimage(laplace_mat);
-	sobel_image.save("sobel.bmp","BMP");
-	laplace_image.save("laplace.bmp","BMP");
 	cv::RotatedRect objRect = cv::minAreaRect(objectPoints);
 	cv::RotatedRect backgroundRect = cv::minAreaRect(backgroundPoints);
 	objectPoints.clear();
@@ -578,7 +620,7 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 	p.setPen(QColor(255,0,0));
 	
 	optimization_phase1(0);
-	if(init[0]-90<1e-4){
+	if(fabs(init[0]-90)<1e-4){
 		p.drawLine(init[1],opt_l_high,init[1],opt_l_low);
 	}
 	else{
@@ -589,7 +631,7 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		p.drawLine(res_x1,opt_l_low,res_x2,opt_l_high);
 	}
 	optimization_phase1(1);
-	if(init[0]-90<1e-4){
+	if(fabs(init[0]-90)<1e-4){
 		p.drawLine(init[1],opt_l_high,init[1],opt_l_low);
 	}
 	else{
@@ -1305,7 +1347,116 @@ void set_y_offset(int y_offset){
 	}
 	y_offset = abs(y_offset);
 }
-
+double getGMMFeature(double angle,cv::Point2f p){
+	double res = 0;
+	double avg = 0;
+	no_k = fabs(angle-90)<1e-4;
+	double tmp1;
+	double tmp2;
+	double cnt_f=0;
+	double cnt_b=0;
+	int x;
+	int cnt;
+	double k2,b2,k,b;
+	QImage testimg = opt_orig_image.copy();
+	int gmm_x_offset=1;
+	if(!no_k)
+	{
+		cnt=0;
+		k = tan(angle *PI /180.00);
+		b = p.y-k*p.x;
+		for (int i = opt_x_low;i<=opt_x_high;i++)
+		{	
+			int y = k*(i+gmm_x_offset)+b;
+			if(y > opt_l_high || y < opt_l_low)
+				continue;
+			double *val = new double(qGray(opt_orig_image.pixel(i+gmm_x_offset,k*(i+gmm_x_offset)+b)));
+			testimg.setPixel(i+gmm_x_offset,y,255);
+			tmp1 = fgmm->GetProbability(val);
+			tmp2 = bgmm->GetProbability(val);
+			//qDebug()<<tmp1<<" "<<tmp2;
+			cnt_f += tmp1>=tmp2;
+			cnt_b += tmp1<tmp2;
+			cnt++;
+		}
+		cnt += cnt==0;
+		if (isright)
+		{
+			res += cnt_b/cnt;
+		}
+		else
+		{
+			res += cnt_f/cnt;
+		}
+		cnt = 0;
+		for (int i = opt_x_low;i<=opt_x_high;i++)
+		{	
+			
+			int y = k*(i-gmm_x_offset)+b;
+			if(y > opt_l_high || y < opt_l_low)
+				continue;
+			double *val = new double(qGray(opt_orig_image.pixel(i-gmm_x_offset,k*(i-gmm_x_offset)+b)));
+			testimg.setPixel(i-gmm_x_offset,y,255);
+			tmp1 = fgmm->GetProbability(val);
+			tmp2 = bgmm->GetProbability(val);
+			//qDebug()<<tmp1<<" "<<tmp2;
+			cnt_f += tmp1>=tmp2;
+			cnt_b += tmp1<tmp2;
+			cnt++;
+		}
+		cnt += cnt==0;
+		if (isright)
+		{
+			res += cnt_f/cnt;
+		}
+		else
+		{
+			res += cnt_b/cnt;
+		}
+	}
+	else{
+		x=p.x;
+		for (int h = opt_l_low;h<=opt_l_high;h++)
+		{	
+			double *val = new double(qGray(opt_orig_image.pixel(p.x+gmm_x_offset,h)));
+			testimg.setPixel(x,h,255);
+			tmp1 = fgmm->GetProbability(val);
+			tmp2 = bgmm->GetProbability(val);
+			//qDebug()<<tmp1<<" "<<tmp2;
+			cnt_f += tmp1>=tmp2;
+			cnt_b += tmp1<tmp2;
+		}
+		if (isright)
+		{
+			res += cnt_b/(opt_l_high-opt_l_low);
+		}
+		else
+		{
+			res += cnt_f/(opt_l_high-opt_l_low);
+		}
+		for (int h = opt_l_low;h<=opt_l_high;h++)
+		{	
+			double *val = new double(qGray(opt_orig_image.pixel(p.x-gmm_x_offset,h)));
+			testimg.setPixel(x,h,255);
+			tmp1 = fgmm->GetProbability(val);
+			tmp2 = bgmm->GetProbability(val);
+			//qDebug()<<tmp1<<" "<<tmp2;
+			cnt_f += tmp1>=tmp2;
+			cnt_b += tmp1<tmp2;
+		}
+		if (isright)
+		{
+			res += cnt_f/(opt_l_high-opt_l_low);
+		}
+		else
+		{
+			res += cnt_b/(opt_l_high-opt_l_low);
+		}
+	}
+	//testimg.save("tmp.bmp","BMP");
+	//qDebug()<<res;
+	return res;
+}
 double getBlockFeature(double angle,cv::Point2f p){
 	double res = 0;
 	double avg = 0;
@@ -1341,9 +1492,9 @@ double getBlockFeature(double angle,cv::Point2f p){
 		{
 			if (no_k)
 			{
-				tmp1 = QColor::fromRgba(opt_orig_image.pixel(x+j,h));
+				tmp1 = QColor::fromRgb(opt_orig_image.pixel(x+j,h));
 				//opt_orig_image.setPixel(x+j,h,255);
-				tmp2 = QColor::fromRgba(opt_orig_image.pixel(x-j,h));
+				tmp2 = QColor::fromRgb(opt_orig_image.pixel(x-j,h));
 			//	opt_orig_image.setPixel(x-j,h,255);
 			}
 			else{
@@ -1357,9 +1508,10 @@ double getBlockFeature(double angle,cv::Point2f p){
 				tmp2 = QColor::fromRgba(opt_orig_image.pixel(x-j,k2*(x-j)+b2));
 				//opt_orig_image.setPixel(x-j,k2*(x-j)+b2,255);
 			}
-			res += abs(tmp2.red() - tmp1.red());
+			/*	res += abs(tmp2.red() - tmp1.red());
 			res += abs(tmp2.green() - tmp1.green());
-			res += abs(tmp2.blue() - tmp1.blue());
+			res += abs(tmp2.blue() - tmp1.blue());*/
+			res += abs(qGray(tmp1.rgb())-qGray(tmp2.rgb()));
 			
 		}
 		avg += res/(opt_l_high-opt_l_low);
@@ -1398,6 +1550,8 @@ double getSobelFeature(double angle,cv::Point2f p){
 		else{
 			x=p.x;
 		}
+		if(x > opt_x_high || x < opt_x_low) 
+			continue;
 		tmp1 = QColor::fromRgba(sobel_image.pixel(x,h));
 		avg += tmp1.red()/(opt_l_high-opt_l_low);
 
@@ -1426,15 +1580,20 @@ double getLaplaceFeature(double angle,cv::Point2f p){
 	{	
 		if(!no_k)
 		{
-			x = (h-b)/k;
 			if (k!=0.0)
 			{
+				x = (h-b)/k;
 				b2 = h-k2*x;
+			}
+			else{
+				continue;
 			}
 		}
 		else{
 			x=p.x;
 		}
+		if(x > opt_x_high || x < opt_x_low) 
+			continue;
 		tmp1 = QColor::fromRgba(laplace_image.pixel(x,h));
 		avg += tmp1.red()/(opt_l_high-opt_l_low);
 
@@ -1446,16 +1605,26 @@ double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_
 
 	double angle  = x[0];
 	cv::Point2f p(x[1],x[2]);
-	//return getBlockFeature(angle,p);
-	return getSobelFeature(angle,p);
-	/*return getLaplaceFeature(angle,p);*/
+	double res =0;
+	switch (use_feature)
+	{
+		case 0:{res = getBlockFeature(angle,p);break;}
+		case 1:{res = getSobelFeature(angle,p);break;}
+		case 2:{res = getLaplaceFeature(angle,p);break;}
+	}
+	if (use_gmm)
+	{
+		res *= getGMMFeature(angle,p);
+	}
+	return res;
 }
 void optimization_phase1(int tag){
+	isright = tag;
 	nlopt::opt opt(nlopt::LN_COBYLA, 3);
 	std::vector<double> lb(3);
 	std::vector<double> ub(3);
-	lb[0]=60;
-	ub[0]=120;
+	lb[0]=45;
+	ub[0]=135;
 	if(tag==0){
 	ub[1]=(double)std::min(opt_objRectPoints[0].x,opt_objRectPoints[1].x);
 	lb[1]=(double)std::max(opt_backgroundRectPoints[0].x,opt_backgroundRectPoints[1].x);
@@ -1473,7 +1642,7 @@ void optimization_phase1(int tag){
 	double maxf = 0;
 	opt_x_high =ub[1];
 	opt_x_low = lb[1];
-	init[0]=60;
+	init[0]=45;
 	init[1]=(lb[1]+ub[1])/2;
 	init[2]=(lb[2]+ub[2])/2;
 	qDebug()<<myfunc(init,init,NULL);
@@ -1481,5 +1650,11 @@ void optimization_phase1(int tag){
 	nlopt::result result = opt.optimize(init,maxf);
 	qDebug()<<maxf;
 	qDebug()<<init[0]<<"\t"<<init[1]<<"\t"<<init[2]<<endl;
+	if (use_gmm){
+		double angle  = init[0];
+		cv::Point2f p(init[1],init[2]);
+		qDebug()<<getGMMFeature(angle,p);
+	}
+
 }
 

@@ -196,6 +196,12 @@
     <ClCompile Include="GeneratedFiles\Template\moc_OptionPageManager.cpp">
       <Filter>Generated Files\Template</Filter>
     </ClCompile>
+    <ClCompile Include="myGMM.cpp">
+      <Filter>UI\Segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="KMeans.cpp">
+      <Filter>UI\Segmentation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Segmentation\gmm\GMM.h">
@@ -260,6 +266,12 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_optionpagemanager.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="myGMM.h">
+      <Filter>UI\Segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="KMeans.h">
+      <Filter>UI\Segmentation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
