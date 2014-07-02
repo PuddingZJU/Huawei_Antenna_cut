@@ -23,7 +23,8 @@ cv::RotatedRect opt_objRect;
 cv::RotatedRect opt_backgroundRect;
 cv::Point2f opt_objRectPoints[4];
 cv::Point2f opt_backgroundRectPoints[4];
-int x_offset,y_offset,use_file=0,use_feature=2,use_color=0,use_enhance=1,use_gmm=1,isright=0;
+cv::Point2i lt,lb,rt,rb;
+int x_offset,y_offset,use_file=0,use_feature=3,use_color=0,use_enhance=0,use_gmm=0,isright=0;
 void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRect,cv::RotatedRect _backgroundRect);
 double opt_l_high,opt_l_low,opt_x_high,opt_x_low;
 void set_x_offset(int x_offset);
@@ -36,7 +37,13 @@ myGMM *bgmm,*fgmm;
 void optimization_phase1(int tag); 
 double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data);
 bool no_k;
-
+//Mat qimage2mat(const QImage& qimage) { 
+//	cv::Mat mat = cv::Mat(qimage.height(), qimage.width(), CV_8UC4, (uchar*)qimage.bits(), qimage.bytesPerLine()); 
+//	cv::Mat mat2 = cv::Mat(mat.rows, mat.cols, CV_8UC3 ); 
+//	int from_to[] = { 0,0, 1,1, 2,2 }; 
+//	cv::mixChannels( &mat, 1, &mat2, 1, from_to, 3 ); 
+//	return mat2; 
+//}; 
 cv::Mat guidedFilter(cv::Mat I, cv::Mat p, int r, double eps)
 {
 	/*
@@ -615,34 +622,63 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		p.drawLine((int)backgroundRectPoints[i].x,(int)backgroundRectPoints[i].y,(int)backgroundRectPoints[(i+1)%4].x,(int)backgroundRectPoints[(i+1)%4].y);
 	}
 
-	test_image.save("setp1_res.bmp","bmp");
-	opt_data_init(image,mask_img,objRect,backgroundRect);
-	p.setPen(QColor(255,0,0));
+	if (use_feature == 3)
+	{
+		
+		lt.x = min(backgroundRectPoints[0].x,backgroundRectPoints[1].x);
+		lt.y = max(objRectPoints[1].y,objRectPoints[2].y);
+		lb.x = max(objRectPoints[1].x,objRectPoints[0].x);
+		lb.y = min(objRectPoints[0].y,objRectPoints[3].y);
+		rb.x = max(backgroundRectPoints[2].x,backgroundRectPoints[3].x);
+		rt.y = lt.y;
+		rt.x = min(objRectPoints[2].x,objRectPoints[3].x);
+		rb.y = lb.y;
+		QImage  Limage = image.copy(QRect(QPoint(lt.x,lt.y),QPoint(lb.x,lb.y)));
+		QImage Rimage = image.copy(QRect(QPoint(rt.x,rt.y),QPoint(rb.x,rb.y)));
+		Mat l_m,r_m,l_lab,r_lab;
+		QImage2Mat(Limage,l_m);
+		QImage2Mat(Rimage,r_m);
+		imwrite("l.jpg",l_m);
+		imwrite("r.jpg",r_m);
+		cvtColor(l_m,l_lab,CV_RGB2Lab);
+		cvtColor(r_m,r_lab,CV_RGB2Lab);
+		imwrite("l_lab.jpg",l_lab);
+		imwrite("r_lab.jpg",r_lab);
+
+		return Limage;
+	}
+	else
+	{
+		opt_data_init(image,mask_img,objRect,backgroundRect);
+		p.setPen(QColor(255,0,0));
+
+		optimization_phase1(0);
+		if(fabs(init[0]-90)<1e-4){
+			p.drawLine(init[1],opt_l_high,init[1],opt_l_low);
+		}
+		else{
+			double res_k = tan(init[0] *PI /180.00);
+			double res_b = init[2]-init[1]*res_k;
+			double res_x1 = (opt_l_low-res_b)/res_k;
+			double res_x2 = (opt_l_high-res_b)/res_k;
+			p.drawLine(res_x1,opt_l_low,res_x2,opt_l_high);
+		}
+		optimization_phase1(1);
+		if(fabs(init[0]-90)<1e-4){
+			p.drawLine(init[1],opt_l_high,init[1],opt_l_low);
+		}
+		else{
+			double res_k = tan(init[0]*PI /180.00);
+			double res_b = init[2]-init[1]*res_k;
+			double res_x1 = (opt_l_low-res_b)/res_k;
+			double res_x2 = (opt_l_high-res_b)/res_k;
+			p.drawLine(res_x1,opt_l_low,res_x2,opt_l_high);
+		}
+		p.end();
+		return test_image;
+
+	}
 	
-	optimization_phase1(0);
-	if(fabs(init[0]-90)<1e-4){
-		p.drawLine(init[1],opt_l_high,init[1],opt_l_low);
-	}
-	else{
-		double res_k = tan(init[0] *PI /180.00);
-		double res_b = init[2]-init[1]*res_k;
-		double res_x1 = (opt_l_low-res_b)/res_k;
-		double res_x2 = (opt_l_high-res_b)/res_k;
-		p.drawLine(res_x1,opt_l_low,res_x2,opt_l_high);
-	}
-	optimization_phase1(1);
-	if(fabs(init[0]-90)<1e-4){
-		p.drawLine(init[1],opt_l_high,init[1],opt_l_low);
-	}
-	else{
-		double res_k = tan(init[0]*PI /180.00);
-		double res_b = init[2]-init[1]*res_k;
-		double res_x1 = (opt_l_low-res_b)/res_k;
-		double res_x2 = (opt_l_high-res_b)/res_k;
-		p.drawLine(res_x1,opt_l_low,res_x2,opt_l_high);
-	}
-	p.end();
-	return test_image;
 	/*if (_window->ui.actionLazyBrush->isChecked())
 	{
 	segment_img = segment_lazybrush(image, mask_img, out_seg);
