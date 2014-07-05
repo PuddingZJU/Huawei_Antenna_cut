@@ -19,12 +19,20 @@ QImage opt_mask_image;
 QImage sobel_image;
 QImage laplace_image;
 std::vector<double> init(3);
+struct TargetPath
+{
+	 std::vector<cv::Point2i> path;
+	 double variance,mean,total;
+};
 cv::RotatedRect opt_objRect;
 cv::RotatedRect opt_backgroundRect;
 cv::Point2f opt_objRectPoints[4];
 cv::Point2f opt_backgroundRectPoints[4];
 cv::Point2i lt,lb,rt,rb;
-int x_offset,y_offset,use_file=0,use_feature=3,use_color=0,use_enhance=0,use_gmm=0,isright=0;
+struct lable_route{
+	int l,val;
+};
+int x_offset,y_offset,use_file=1,use_feature=3,use_color=0,use_enhance=0,use_gmm=0,isright=0;
 void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRect,cv::RotatedRect _backgroundRect);
 double opt_l_high,opt_l_low,opt_x_high,opt_x_low;
 void set_x_offset(int x_offset);
@@ -33,6 +41,8 @@ double getGMMFeature(double angle,cv::Point2f p);
 double getBlockFeature(double angle,cv::Point2f p);
 double getSobelFeature(double angle,cv::Point2f p);
 double getLaplaceFreture(double angle,cv::Point2f p);
+cv::Mat getCostMatrix(cv::Mat orig);
+std::vector<TargetPath> getTargetPath(cv::Mat cost);
 myGMM *bgmm,*fgmm;
 void optimization_phase1(int tag); 
 double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data);
@@ -47,12 +57,12 @@ bool no_k;
 cv::Mat guidedFilter(cv::Mat I, cv::Mat p, int r, double eps)
 {
 	/*
-		% GUIDEDFILTER   O(1) time implementation of guided filter.
-		%
-		%   - guidance image: I (should be a gray-scale/single channel image)
-		%   - filtering input image: p (should be a gray-scale/single channel image)
-		%   - local window radius: r
-		%   - regularization parameter: eps
+	% GUIDEDFILTER   O(1) time implementation of guided filter.
+	%
+	%   - guidance image: I (should be a gray-scale/single channel image)
+	%   - filtering input image: p (should be a gray-scale/single channel image)
+	%   - local window radius: r
+	%   - regularization parameter: eps
 	*/
 
 	cv::Mat _I;
@@ -74,7 +84,7 @@ cv::Mat guidedFilter(cv::Mat I, cv::Mat p, int r, double eps)
 	//mean_I = boxfilter(I, r) ./ N;
 	cv::Mat mean_I;
 	cv::boxFilter(I, mean_I, CV_64FC1, cv::Size(r, r));
-	
+
 	//mean_p = boxfilter(p, r) ./ N;
 	cv::Mat mean_p;
 	cv::boxFilter(p, mean_p, CV_64FC1, cv::Size(r, r));
@@ -506,7 +516,6 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 	string pth = "pic_";
 	pth.push_back(fs[fs.size()-5]);
 	pth += ".input";
-	use_file=1;
 	if(!use_file){
 		std::ofstream out;
 		out.open(pth);
@@ -524,7 +533,7 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 			}
 		}
 	}
-	
+
 	else{
 		std::ifstream in;
 		in.open(pth.c_str());
@@ -600,7 +609,7 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		laplace_image = mat2qimage(laplace_mat);
 		laplace_image.save("laplace.bmp","BMP");
 	}
-	
+
 	cv::RotatedRect objRect = cv::minAreaRect(objectPoints);
 	cv::RotatedRect backgroundRect = cv::minAreaRect(backgroundPoints);
 	objectPoints.clear();
@@ -621,17 +630,17 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 	for(int i=0;i<4;i++){
 		p.drawLine((int)backgroundRectPoints[i].x,(int)backgroundRectPoints[i].y,(int)backgroundRectPoints[(i+1)%4].x,(int)backgroundRectPoints[(i+1)%4].y);
 	}
-
+	opt_data_init(image,mask_img,objRect,backgroundRect);
 	if (use_feature == 3)
 	{
-		
-		lt.x = min(backgroundRectPoints[0].x,backgroundRectPoints[1].x);
-		lt.y = max(objRectPoints[1].y,objRectPoints[2].y);
-		lb.x = max(objRectPoints[1].x,objRectPoints[0].x);
-		lb.y = min(objRectPoints[0].y,objRectPoints[3].y);
-		rb.x = max(backgroundRectPoints[2].x,backgroundRectPoints[3].x);
+
+		lt.x = min(opt_backgroundRectPoints[0].x,opt_backgroundRectPoints[1].x);
+		lt.y = max(opt_objRectPoints[1].y,opt_objRectPoints[2].y);
+		lb.x = max(opt_objRectPoints[1].x,opt_objRectPoints[0].x);
+		lb.y = min(opt_objRectPoints[0].y,opt_objRectPoints[3].y);
+		rb.x = max(opt_backgroundRectPoints[2].x,opt_backgroundRectPoints[3].x);
 		rt.y = lt.y;
-		rt.x = min(objRectPoints[2].x,objRectPoints[3].x);
+		rt.x = min(opt_objRectPoints[2].x,opt_objRectPoints[3].x);
 		rb.y = lb.y;
 		QImage  Limage = image.copy(QRect(QPoint(lt.x,lt.y),QPoint(lb.x,lb.y)));
 		QImage Rimage = image.copy(QRect(QPoint(rt.x,rt.y),QPoint(rb.x,rb.y)));
@@ -644,12 +653,29 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		cvtColor(r_m,r_lab,CV_RGB2Lab);
 		imwrite("l_lab.jpg",l_lab);
 		imwrite("r_lab.jpg",r_lab);
+		Mat cost_l,cost_r;
+		cost_l = getCostMatrix(l_lab);
+		cost_r = getCostMatrix(r_lab);
+		auto res_paths_l = getTargetPath(cost_l);
+		auto res_paths_r = getTargetPath(cost_r);
+		uint color[5]={0xFFFF0000,0xFFFFFF00,0xFFFF00FF,0xFF00FFFF,0xFF008000};
+		for (int i=4;i>=0;i--)
+		{
+			for (int j = 0;j<res_paths_l[i].path.size();j++)
+			{
+				test_image.setPixel(res_paths_l[i].path[j].x+lt.x+1,res_paths_l[i].path[j].y+lt.y+1,color[i]);
+			}
+			for (int j = 0;j<res_paths_r[i].path.size();j++)
+			{
+				test_image.setPixel(res_paths_r[i].path[j].x+rt.x+1,res_paths_r[i].path[j].y+rt.y+1,color[i]);
+			}
 
-		return Limage;
+		}
+		return test_image;
 	}
 	else
 	{
-		opt_data_init(image,mask_img,objRect,backgroundRect);
+		
 		p.setPen(QColor(255,0,0));
 
 		optimization_phase1(0);
@@ -678,7 +704,7 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		return test_image;
 
 	}
-	
+
 	/*if (_window->ui.actionLazyBrush->isChecked())
 	{
 	segment_img = segment_lazybrush(image, mask_img, out_seg);
@@ -1427,7 +1453,7 @@ double getGMMFeature(double angle,cv::Point2f p){
 		cnt = 0;
 		for (int i = opt_x_low;i<=opt_x_high;i++)
 		{	
-			
+
 			int y = k*(i-gmm_x_offset)+b;
 			if(y > opt_l_high || y < opt_l_low)
 				continue;
@@ -1531,7 +1557,7 @@ double getBlockFeature(double angle,cv::Point2f p){
 				tmp1 = QColor::fromRgb(opt_orig_image.pixel(x+j,h));
 				//opt_orig_image.setPixel(x+j,h,255);
 				tmp2 = QColor::fromRgb(opt_orig_image.pixel(x-j,h));
-			//	opt_orig_image.setPixel(x-j,h,255);
+				//	opt_orig_image.setPixel(x-j,h,255);
 			}
 			else{
 				if(x+j > opt_x_high || x+j < opt_x_low || k2*(x+j)+b2 > opt_l_high || k2*(x+j)+b2 < opt_l_low) 
@@ -1539,7 +1565,7 @@ double getBlockFeature(double angle,cv::Point2f p){
 				if(x-j > opt_x_high || x-j < opt_x_low || k2*(x-j)+b2 > opt_l_high || k2*(x-j)+b2 < opt_l_low)
 					continue;
 				tmp1 = QColor::fromRgba(opt_orig_image.pixel(x+j,k2*(x+j)+b2));
-				
+
 				//opt_orig_image.setPixel(x+j,k2*(x+j)+b2,255);
 				tmp2 = QColor::fromRgba(opt_orig_image.pixel(x-j,k2*(x-j)+b2));
 				//opt_orig_image.setPixel(x-j,k2*(x-j)+b2,255);
@@ -1548,7 +1574,7 @@ double getBlockFeature(double angle,cv::Point2f p){
 			res += abs(tmp2.green() - tmp1.green());
 			res += abs(tmp2.blue() - tmp1.blue());*/
 			res += abs(qGray(tmp1.rgb())-qGray(tmp2.rgb()));
-			
+
 		}
 		avg += res/(opt_l_high-opt_l_low);
 
@@ -1644,9 +1670,9 @@ double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_
 	double res =0;
 	switch (use_feature)
 	{
-		case 0:{res = getBlockFeature(angle,p);break;}
-		case 1:{res = getSobelFeature(angle,p);break;}
-		case 2:{res = getLaplaceFeature(angle,p);break;}
+	case 0:{res = getBlockFeature(angle,p);break;}
+	case 1:{res = getSobelFeature(angle,p);break;}
+	case 2:{res = getLaplaceFeature(angle,p);break;}
 	}
 	if (use_gmm)
 	{
@@ -1662,8 +1688,8 @@ void optimization_phase1(int tag){
 	lb[0]=45;
 	ub[0]=135;
 	if(tag==0){
-	ub[1]=(double)std::min(opt_objRectPoints[0].x,opt_objRectPoints[1].x);
-	lb[1]=(double)std::max(opt_backgroundRectPoints[0].x,opt_backgroundRectPoints[1].x);
+		ub[1]=(double)std::min(opt_objRectPoints[0].x,opt_objRectPoints[1].x);
+		lb[1]=(double)std::max(opt_backgroundRectPoints[0].x,opt_backgroundRectPoints[1].x);
 	}
 	else if(tag == 1){
 		lb[1]=(double)std::min(opt_objRectPoints[2].x,opt_objRectPoints[3].x);
@@ -1694,3 +1720,137 @@ void optimization_phase1(int tag){
 
 }
 
+cv::Mat getCostMatrix(cv::Mat orig_mat)
+{
+	Mat cost(orig_mat.rows,orig_mat.cols-2,CV_8UC1);
+	int nl = orig_mat.rows;
+	int nc = orig_mat.cols;
+	for (int i = 0; i<nl;i++)
+	{
+		uchar* data= orig_mat.ptr<uchar>(i);
+		uchar* dsc = cost.ptr<uchar>(i);
+		int distance = 0;
+		for (int j =0;j<nc-2;j++)
+		{
+			if (orig_mat.channels()==1)
+			{
+				dsc[j] = (abs(data[j*3]-data[(j+2)*3])+abs(data[j*3]-data[(j+2)*3])+abs(data[j*3]-data[(j+2)*3]));
+			}
+			else
+			{
+				dsc[j] = (abs(data[j*3+0]-data[(j+2)*3+0])+abs(data[j*3+1]-data[(j+2)*3+1])+abs(data[j*3+2]-data[(j+2)*3+2])) ;
+				dsc[j] += (abs(data[j*3+0]-data[(j+1)*3+0])+abs(data[j*3+1]-data[(j+1)*3+1])+abs(data[j*3+2]-data[(j+1)*3+2])) ;
+			}			
+		}
+		for (int j =1;j<nc-3;j++)
+		{
+			if (orig_mat.channels()==1)
+			{
+				dsc[j] += (abs(data[(j-1)*3]-data[(j+3)*3])+abs(data[j*3]-data[(j+3)*3])+abs(data[j*3]-data[(j+3)*3]));
+			}
+			else
+			{
+				dsc[j] += (abs(data[(j-1)*3+0]-data[(j+3)*3+0])+abs(data[(j-1)*3+1]-data[(j+3)*3+1])+abs(data[(j-1)*3+2]-data[(j+3)*3+2])) ;
+			}			
+		}
+	}
+	imwrite("cost.jpg",cost);
+	return cost;
+}
+bool sort_func(lable_route a,lable_route b){
+	return a.val>b.val;
+}
+bool sort_path_func(TargetPath a, TargetPath b){
+	if (a.total == b.total)
+	{
+		return a.total >b.total;
+	}
+	else if(a.variance == b.variance){
+		return a.variance >b.variance;
+	}
+	else {
+		return a.path.size()>b.path.size();
+	}
+}
+std::vector<TargetPath> getTargetPath(cv::Mat cost)
+{
+	std::vector<TargetPath> TargetPathSet;
+	Mat res_mat(cost.rows,cost.cols,CV_32SC1);
+	for (int i=1; i<cost.rows;i++)
+	{
+		int* res_data= res_mat.ptr<int>(i);
+		uchar* cost_data= cost.ptr<uchar>(i-1);
+		uchar* cost_data_this= cost.ptr<uchar>(i);
+		if (i==1)
+		{
+			int* base_data= res_mat.ptr<int>(i-1);
+			for (int j=0;j<cost.cols;j++)
+			{
+				base_data[j] = cost_data[j];
+			}
+		}
+		for (int j=0;j<cost.cols;j++)
+		{
+			if (j==0)
+			{
+				res_data[j]=max(cost_data[j],cost_data[j+1])+cost_data_this[j];
+			}
+			else if (j==cost.cols-1)
+			{
+				res_data[j]=max(cost_data[j],cost_data[j-1])+cost_data_this[j];
+			}
+			else{
+				res_data[j]=max(max(cost_data[j],cost_data[j-1]),cost_data[j+1])+cost_data_this[j];
+			}
+		}
+	}
+	int* res_data= res_mat.ptr<int>(res_mat.cols-1);
+	std::vector<lable_route> sort_r;
+	for (int i = 0;i<res_mat.cols;i++)
+	{
+		lable_route t;
+		t.l=i;t.val=res_data[i];
+		sort_r.push_back(t);
+	}
+	std::sort(sort_r.begin(),sort_r.end(),sort_func);
+	for (int k=0;k<10;k++)
+	{
+		TargetPath tmp;
+		tmp.path.push_back(cv::Point2i(sort_r[k].l,cost.rows-1));
+		int j = sort_r[k].l;
+		tmp.total = sort_r[k].val;
+		tmp.mean = tmp.total/cost.rows;
+		tmp.variance = 0;
+		for (int i=cost.rows-1; i>0;i--)
+		{
+			uchar* cost_data= cost.ptr<uchar>(i-1);
+			if (j==0)
+			{
+				tmp.path.push_back(cv::Point2i(cost_data[j]>cost_data[j+1]?j:j+1,i-1));
+			}
+			else if (j==cost.cols-1)
+			{
+				tmp.path.push_back(cv::Point2i(cost_data[j]>cost_data[j+1]?j:j-1,i-1));
+			}
+			else{
+				int t =max(max(cost_data[j],cost_data[j-1]),cost_data[j+1]);
+				if(t==cost_data[j]){
+					tmp.path.push_back(cv::Point2i(j,i-1));
+				}
+				else if (t==cost_data[j-1]){
+					tmp.path.push_back(cv::Point2i(j-1,i-1));
+				}
+				else{
+					tmp.path.push_back(cv::Point2i(j+1,i-1));
+				}
+			}
+			j = tmp.path[tmp.path.size()-1].x;
+			int cur_cost = cost_data[j];
+			tmp.variance += (cur_cost-tmp.mean)*(cur_cost-tmp.mean);
+		}
+		tmp.variance /= tmp.path.size();
+		TargetPathSet.push_back(tmp);
+	}
+	sort(TargetPathSet.begin(),TargetPathSet.end(),sort_path_func);
+	return TargetPathSet;
+}
