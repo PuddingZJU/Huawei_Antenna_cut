@@ -1,185 +1,64 @@
-﻿Build started 2014/6/29 22:15:21.
-     1>Project "D:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP\DHAPP.vcxproj" on node 2 (build target(s)).
+﻿Build started 2014/7/11 15:25:08.
+     1>Project "C:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP\DHAPP.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Creating "D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.unsuccessfulbuild" because "AlwaysCreate" was specified.
+         Creating "C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.unsuccessfulbuild" because "AlwaysCreate" was specified.
        CustomBuild:
-         Moc'ing OptionPageManager.h...
-         Moc'ing imagelist.h...
-         Moc'ing ImageWin.h...
-         Moc'ing MainWindow.h...
-         Moc'ing ProjectFileInterface.h...
-         Moc'ing ProjectFileManager.h...
-         Moc'ing Segmentation.h...
-         Moc'ing SegmentationOptionPage.h...
-         Moc'ing SegmentationParamPanel.h...
-         Uic'ing optionpagemanager.ui...
-         Uic'ing MainWindow.ui...
-         Uic'ing SegmentationOptionPage.ui...
-         Uic'ing SegmentationParamPanel.ui...
-         Rcc'ing DHAPP.qrc...
+         All outputs are up-to-date.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I.\GeneratedFiles /IC:\SDK\Qt\4.8.6\include /I.\GeneratedFiles\Release /IC:\SDK\Qt\4.8.6\include\qtmain /IC:\SDK\Qt\4.8.6\include\QtCore /IC:\SDK\Qt\4.8.6\include\QtGui /IC:\SDK\Qt\4.8.6\include\QtXml /IC:\SDK\Qt\4.8.6\include\QtXmlPatterns /IC:\SDK\opencv\build\include /IC:\SDK\opencv\build\include\opencv /IC:\SDK\opencv\build\include\opencv2 /ID:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP /ID:\Users\leon\Desktop\Huawei_Antenna_cut\thirdparty\NLOPT\include /nologo /W1 /WX- /Ox /Oy- /D UNICODE /D WIN32 /D QT_LARGEFILE_SUPPORT /D QT_NO_DEBUG /D NDEBUG /D QT_CORE_LIB /D QT_GUI_LIB /D QT_XML_LIB /D QT_XMLPATTERNS_LIB /D QT_DLL /D SAVE_MINI_IMAGE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\\" /Fd"D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt GeneratedFiles\Release\moc_OptionPageManager.cpp OptionPageManager.cpp Segmentation\gmm\GMM.cpp Segmentation\CommonFunc.cpp Segmentation\GrabCut.cpp Segmentation\SegmentInterface.cpp Segmentation\LoG\smooth.cpp Segmentation\maxflow\graph.cpp Segmentation\maxflow\maxflow.cpp ElementPick.cpp imagelist.cpp ImageListProjectFileHandle.cpp ImageWin.cpp main.cpp MainWindow.cpp MultiCommand.cpp OperationModeManager.cpp PanelManager.cpp ProjectFileManager.cpp UndoRedoManager.cpp SegCommand.cpp Segmentation.cpp SegmentationOptionPage.cpp SegmentationParamPanel.cpp GeneratedFiles\Release\moc_imagelist.cpp GeneratedFiles\Release\moc_ImageWin.cpp GeneratedFiles\Release\moc_MainWindow.cpp GeneratedFiles\Release\moc_ProjectFileInterface.cpp GeneratedFiles\Release\moc_ProjectFileManager.cpp GeneratedFiles\Release\moc_Segmentation.cpp GeneratedFiles\Release\moc_SegmentationOptionPage.cpp GeneratedFiles\Release\moc_SegmentationParamPanel.cpp -I "/Platform/OutOfCore/include" -I "/Thirdparty/boost" -I "/Platform/OutOfCore/Library/stxxl/include" -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_RTLDLL -DBOOST_LIB_DIAGNOSTIC -DSTXXL_BOOST_TIMESTAMP -DSTXXL_BOOST_CONFIG -DSTXXL_BOOST_FILESYSTEM -DSTXXL_BOOST_THREADS -DSTXXL_BOOST_RANDOM /EHsc /EHs /wd4820 /wd4217 /wd4668 /wd4619 /wd4625 /wd4626 /wd4355 /wd4996 -D_SCL_SECURE_NO_DEPRECATE /F 16777216 /nologo  
-         moc_OptionPageManager.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         OptionPageManager.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         GMM.cpp
-         CommonFunc.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         GrabCut.cpp
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\segmentation\GrabCut.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         SegmentInterface.cpp
-     1>Segmentation\SegmentInterface.cpp : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\segmentation\GrabCut.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-         smooth.cpp
-         graph.cpp
-         maxflow.cpp
-         ElementPick.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\MainWindow.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-         imagelist.cpp
-     1>imagelist.cpp : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         ImageListProjectFileHandle.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         ImageWin.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\MainWindow.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-         main.cpp
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\MainWindow.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-         MainWindow.cpp
-     1>MainWindow.cpp : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\MainWindow.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\Segmentation.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-         MultiCommand.cpp
-         OperationModeManager.cpp
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\MainWindow.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-         PanelManager.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         ProjectFileManager.cpp
-     1>ProjectFileManager.cpp : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         UndoRedoManager.cpp
-         Generating Code...
-         Compiling...
-         SegCommand.cpp
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\Segmentation.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I.\GeneratedFiles /IC:\SDK\Qt4\4.8.6\include /I.\GeneratedFiles\Release /IC:\SDK\Qt4\4.8.6\include\qtmain /IC:\SDK\Qt4\4.8.6\include\QtCore /IC:\SDK\Qt4\4.8.6\include\QtGui /IC:\SDK\Qt4\4.8.6\include\QtXml /IC:\SDK\Qt4\4.8.6\include\QtXmlPatterns /IC:\SDK\opencv\build\include /IC:\SDK\opencv\build\include\opencv /IC:\SDK\opencv\build\include\opencv2 /IC:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP /IC:\Users\leon\Desktop\Huawei_Antenna_cut\thirdparty\NLOPT\include /nologo /W1 /WX- /Ox /Oy- /D UNICODE /D WIN32 /D QT_LARGEFILE_SUPPORT /D QT_NO_DEBUG /D NDEBUG /D QT_CORE_LIB /D QT_GUI_LIB /D QT_XML_LIB /D QT_XMLPATTERNS_LIB /D QT_DLL /D SAVE_MINI_IMAGE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\\" /Fd"C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Segmentation.cpp -I "/Platform/OutOfCore/include" -I "/Thirdparty/boost" -I "/Platform/OutOfCore/Library/stxxl/include" -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_RTLDLL -DBOOST_LIB_DIAGNOSTIC -DSTXXL_BOOST_TIMESTAMP -DSTXXL_BOOST_CONFIG -DSTXXL_BOOST_FILESYSTEM -DSTXXL_BOOST_THREADS -DSTXXL_BOOST_RANDOM /EHsc /EHs /wd4820 /wd4217 /wd4668 /wd4619 /wd4625 /wd4626 /wd4355 /wd4996 -D_SCL_SECURE_NO_DEPRECATE /F 16777216 /nologo  
          Segmentation.cpp
      1>Segmentation.cpp : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\Segmentation.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
+     1>c:\users\leon\desktop\huawei_antenna_cut\dhapp\Segmentation.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+     1>c:\sdk\qt4\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
                  command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\MainWindow.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>Segmentation.cpp(1003): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-         SegmentationOptionPage.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         SegmentationParamPanel.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         moc_imagelist.cpp
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\generatedfiles\release\../../imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         moc_ImageWin.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         moc_MainWindow.cpp
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\generatedfiles\release\../../MainWindow.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-         moc_ProjectFileInterface.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         moc_ProjectFileManager.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         moc_Segmentation.cpp
-     1>d:\users\leon\desktop\huawei_antenna_cut\dhapp\generatedfiles\release\../../Segmentation.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         moc_SegmentationOptionPage.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         moc_SegmentationParamPanel.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
-         Generating Code...
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I.\GeneratedFiles /IC:\SDK\Qt\4.8.6\include /I.\GeneratedFiles\Release /IC:\SDK\Qt\4.8.6\include\qtmain /IC:\SDK\Qt\4.8.6\include\QtCore /IC:\SDK\Qt\4.8.6\include\QtGui /IC:\SDK\Qt\4.8.6\include\QtXml /IC:\SDK\Qt\4.8.6\include\QtXmlPatterns /IC:\SDK\opencv\build\include /IC:\SDK\opencv\build\include\opencv /IC:\SDK\opencv\build\include\opencv2 /ID:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP /ID:\Users\leon\Desktop\Huawei_Antenna_cut\thirdparty\NLOPT\include /nologo /W1 /WX- /Ox /Oy- /D UNICODE /D WIN32 /D QT_LARGEFILE_SUPPORT /D QT_NO_DEBUG /D NDEBUG /D QT_CORE_LIB /D QT_GUI_LIB /D QT_XML_LIB /D QT_XMLPATTERNS_LIB /D QT_DLL /D SAVE_MINI_IMAGE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\\" /Fd"D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt GeneratedFiles\qrc_DHAPP.cpp -I "/Platform/OutOfCore/include" -I "/Thirdparty/boost" -I "/Platform/OutOfCore/Library/stxxl/include" -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_RTLDLL -DBOOST_LIB_DIAGNOSTIC -DSTXXL_BOOST_TIMESTAMP -DSTXXL_BOOST_CONFIG -DSTXXL_BOOST_FILESYSTEM -DSTXXL_BOOST_THREADS -DSTXXL_BOOST_RANDOM /EHsc /EHs /wd4820 /wd4217 /wd4668 /wd4619 /wd4625 /wd4626 /wd4355 /wd4996 -D_SCL_SECURE_NO_DEPRECATE /F 16777216 /nologo  
-         qrc_DHAPP.cpp
-     1>c:\sdk\qt\4.8.6\include\qtcore\../../src/corelib/global/qconfig.h(41): warning C4005: 'QT_LARGEFILE_SUPPORT' : macro redefinition
-                 command-line arguments :  see previous definition of 'QT_LARGEFILE_SUPPORT'
+     1>c:\users\leon\desktop\huawei_antenna_cut\dhapp\MainWindow.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+     1>c:\users\leon\desktop\huawei_antenna_cut\dhapp\imagelist.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+     1>Segmentation.cpp(972): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+         All outputs are up-to-date.
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe" /NOLOGO /LIBPATH:C:\SDK\Qt\4.8.6\lib /LIBPATH:../Release /LIBPATH:C:\SDK\opencv\build\x86\vc10\lib /LIBPATH:D:\Users\leon\Desktop\Huawei_Antenna_cut\thirdparty\NLOPT\lib qtmain.lib QtCore4.lib QtGui4.lib QtXml4.lib QtXmlPatterns4.lib opencv_highgui249.lib opencv_core249.lib opencv_ml249.lib opencv_imgproc249.lib opencv_features2d249.lib opencv_flann249.lib opencv_gpu249.lib opencv_nonfree249.lib opencv_calib3d249.lib nlopt.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.lib" /MACHINE:X86 D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_OptionPageManager.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\OptionPageManager.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\GMM.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\CommonFunc.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\GrabCut.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\SegmentInterface.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\smooth.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\graph.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\maxflow.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\ElementPick.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\imagelist.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\ImageListProjectFileHandle.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\ImageWin.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\main.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\MainWindow.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\MultiCommand.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\OperationModeManager.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\PanelManager.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\ProjectFileManager.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\UndoRedoManager.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\SegCommand.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\Segmentation.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\SegmentationOptionPage.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\SegmentationParamPanel.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\qrc_DHAPP.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_imagelist.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_ImageWin.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_MainWindow.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_ProjectFileInterface.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_ProjectFileManager.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_Segmentation.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_SegmentationOptionPage.obj
-         D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_SegmentationParamPanel.obj /STACK:16777216 /NOLOGO /OPT:REF  
-         DHAPP.vcxproj -> D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe" /NOLOGO /LIBPATH:C:\SDK\Qt4\4.8.6\lib /LIBPATH:../Release /LIBPATH:C:\SDK\opencv\build\x86\vc10\lib /LIBPATH:C:\Users\leon\Desktop\Huawei_Antenna_cut\thirdparty\NLOPT\lib qtmain.lib QtCore4.lib QtGui4.lib QtXml4.lib QtXmlPatterns4.lib opencv_highgui249.lib opencv_core249.lib opencv_ml249.lib opencv_imgproc249.lib opencv_features2d249.lib opencv_flann249.lib opencv_gpu249.lib opencv_nonfree249.lib opencv_calib3d249.lib nlopt.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.lib" /MACHINE:X86 C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_OptionPageManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\KMeans.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\myGMM.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\OptionPageManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\GMM.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\CommonFunc.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\GrabCut.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\SegmentInterface.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\smooth.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\graph.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\maxflow.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\ElementPick.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\imagelist.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\ImageListProjectFileHandle.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\ImageWin.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\main.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\MainWindow.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\MultiCommand.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\OperationModeManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\PanelManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\ProjectFileManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\UndoRedoManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\SegCommand.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\Segmentation.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\SegmentationOptionPage.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\SegmentationParamPanel.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\qrc_DHAPP.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_imagelist.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_ImageWin.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_MainWindow.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_ProjectFileInterface.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_ProjectFileManager.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_Segmentation.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_SegmentationOptionPage.obj
+         C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\moc_SegmentationParamPanel.obj /STACK:16777216 /NOLOGO /OPT:REF  
+         DHAPP.vcxproj -> C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe
        Manifest:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe;#1" /manifest D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe.intermediate.manifest
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe;#1" /manifest C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.exe.intermediate.manifest
        FinalizeBuildStatus:
-         Deleting file "D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.unsuccessfulbuild".
-         Touching "D:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.lastbuildstate".
-     1>Done Building Project "D:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP\DHAPP.vcxproj" (build target(s)).
+         Deleting file "C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.unsuccessfulbuild".
+         Touching "C:\Users\leon\Desktop\Huawei_Antenna_cut\Release\DHAPP.lastbuildstate".
+     1>Done Building Project "C:\Users\leon\Desktop\Huawei_Antenna_cut\DHAPP\DHAPP.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:01:09.47
+Time Elapsed 00:00:05.91

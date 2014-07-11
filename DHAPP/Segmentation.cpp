@@ -12,6 +12,7 @@ using namespace NMH;
 #include <OperationModeManager.h>
 #include <fstream>
 #include "myGMM.h"
+#include <sstream>
 #define MAX_PIXEL_NUM	(300*1024)
 using cv::Mat;
 QImage opt_orig_image;
@@ -19,20 +20,30 @@ QImage opt_mask_image;
 QImage sobel_image;
 QImage laplace_image;
 std::vector<double> init(3);
+struct CandidateLine{
+	cv::Point2i u,b;
+	double cost;
+};
 struct TargetPath
 {
-	 std::vector<cv::Point2i> path;
-	 double variance,mean,total;
+	std::vector<cv::Point2i> path;
+	double variance,mean,total;
 };
 cv::RotatedRect opt_objRect;
 cv::RotatedRect opt_backgroundRect;
 cv::Point2f opt_objRectPoints[4];
 cv::Point2f opt_backgroundRectPoints[4];
 cv::Point2i lt,lb,rt,rb;
+template <class T> 
+std::string ConvertToString(T value) {
+	std::stringstream ss;
+	ss << value;
+	return ss.str();
+}
 struct lable_route{
 	int l,val;
 };
-int x_offset,y_offset,use_file=1,use_feature=3,use_color=0,use_enhance=0,use_gmm=0,isright=0;
+int x_offset,y_offset,use_file=1,use_feature=4,use_color=0,use_enhance=1,use_gmm=0,isright=0,get_sobel=0;
 void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRect,cv::RotatedRect _backgroundRect);
 double opt_l_high,opt_l_low,opt_x_high,opt_x_low;
 void set_x_offset(int x_offset);
@@ -41,12 +52,17 @@ double getGMMFeature(double angle,cv::Point2f p);
 double getBlockFeature(double angle,cv::Point2f p);
 double getSobelFeature(double angle,cv::Point2f p);
 double getLaplaceFreture(double angle,cv::Point2f p);
+double getLineFeature(cv::Point2i u,cv::Point2i l,const Mat &cost_src);
+std::vector<CandidateLine> getCandidateLines(QRect rect, const Mat &cost_src);
 cv::Mat getCostMatrix(cv::Mat orig);
 std::vector<TargetPath> getTargetPath(cv::Mat cost);
 myGMM *bgmm,*fgmm;
 void optimization_phase1(int tag); 
 double myfunc(const std::vector<double> &x, std::vector<double> &grad, void *my_func_data);
 bool no_k;
+bool sort_lines(CandidateLine a,CandidateLine b){
+	return a.cost>b.cost;
+}
 //Mat qimage2mat(const QImage& qimage) { 
 //	cv::Mat mat = cv::Mat(qimage.height(), qimage.width(), CV_8UC4, (uchar*)qimage.bits(), qimage.bytesPerLine()); 
 //	cv::Mat mat2 = cv::Mat(mat.rows, mat.cols, CV_8UC3 ); 
@@ -578,7 +594,7 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 	Mat im_gray;
 	cvtColor(im, im_gray, CV_RGB2GRAY);
 	//imshow("Gray", im_gray);
-	if (use_feature==1 ){
+	if (use_feature==1 || get_sobel == 1){
 		cv::Sobel( im_gray, sobel_mat_x, im_gray.depth(), 1, 0, 3);
 		cv::Sobel( im_gray, sobel_mat_y, im_gray.depth(), 0, 1, 3);
 		cv::convertScaleAbs(sobel_mat_x,abs_sobel_mat_x);
@@ -592,8 +608,9 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 			procEachImageChannel(sobel_ipl,enhance_guidedfilter);
 			sobel_mat = Mat(sobel_ipl,true);
 		}
+		qDebug()<<sobel_mat.channels();
 		sobel_image = mat2qimage(sobel_mat);
-		sobel_image.save("sobel.bmp","BMP");
+		sobel_image.save((pth+"sobel.bmp").c_str(),"BMP");
 	}
 	if (use_feature==2){
 		cv::Laplacian(im_gray,laplace_mat,im_gray.depth());
@@ -642,10 +659,11 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		rt.y = lt.y;
 		rt.x = min(opt_objRectPoints[2].x,opt_objRectPoints[3].x);
 		rb.y = lb.y;
+
 		QImage  Limage = image.copy(QRect(QPoint(lt.x,lt.y),QPoint(lb.x,lb.y)));
 		QImage Rimage = image.copy(QRect(QPoint(rt.x,rt.y),QPoint(rb.x,rb.y)));
 		Mat l_m,r_m,l_lab,r_lab;
-		QImage2Mat(Limage,l_m);
+		QImage2Mat(Limage,l_m);  
 		QImage2Mat(Rimage,r_m);
 		imwrite("l.jpg",l_m);
 		imwrite("r.jpg",r_m);
@@ -654,11 +672,11 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		imwrite("l_lab.jpg",l_lab);
 		imwrite("r_lab.jpg",r_lab);
 		Mat cost_l,cost_r;
-		cost_l = getCostMatrix(l_lab);
-		cost_r = getCostMatrix(r_lab);
+		cost_l = getCostMatrix(l_m);
+		cost_r = getCostMatrix(r_m);
 		auto res_paths_l = getTargetPath(cost_l);
 		auto res_paths_r = getTargetPath(cost_r);
-		uint color[5]={0xFFFF0000,0xFFFFFF00,0xFFFF00FF,0xFF00FFFF,0xFF008000};
+		uint color[5]={0xFFFF0000,0xFFFF00FF,0xFFFFFF00,0xFF00FFFF,0xFF008000};
 		for (int i=4;i>=0;i--)
 		{
 			for (int j = 0;j<res_paths_l[i].path.size();j++)
@@ -671,11 +689,48 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 			}
 
 		}
+
+
+		return test_image;
+	}
+	else if(use_feature == 4){
+		std::vector<CandidateLine> left,right;
+		lt.x = min(opt_backgroundRectPoints[0].x,opt_backgroundRectPoints[1].x);
+		lt.y = max(opt_objRectPoints[1].y,opt_objRectPoints[2].y);
+		lb.x = max(opt_objRectPoints[1].x,opt_objRectPoints[0].x);
+		lb.y = min(opt_objRectPoints[0].y,opt_objRectPoints[3].y);
+		rb.x = max(opt_backgroundRectPoints[2].x,opt_backgroundRectPoints[3].x);
+		rt.y = lt.y;
+		rt.x = min(opt_objRectPoints[2].x,opt_objRectPoints[3].x);
+		rb.y = lb.y;
+		QImage  Limage = image.copy(QRect(QPoint(lt.x,lt.y),QPoint(lb.x,lb.y)));
+		QImage Rimage = image.copy(QRect(QPoint(rt.x,rt.y),QPoint(rb.x,rb.y)));
+		Mat l_m,r_m,l_lab,r_lab;
+		QImage2Mat(Limage,l_m);  
+		QImage2Mat(Rimage,r_m);
+		imwrite("l.jpg",l_m);
+		imwrite("r.jpg",r_m);
+		cvtColor(l_m,l_lab,CV_RGB2Lab);
+		cvtColor(r_m,r_lab,CV_RGB2Lab);
+		imwrite("l_lab.jpg",l_lab);
+		imwrite("r_lab.jpg",r_lab);
+		Mat cost_l,cost_r;
+		cost_l = getCostMatrix(l_m);
+		cost_r = getCostMatrix(r_m);
+		left = getCandidateLines(QRect(QPoint(lt.x,lt.y),QPoint(lb.x,lb.y)),cost_l);
+		right = getCandidateLines(QRect(QPoint(rt.x,rt.y),QPoint(rb.x,rb.y)),cost_r);
+		sort(left.begin(),left.end(),sort_lines);
+		sort(right.begin(),right.end(),sort_lines);
+		p.setPen(QColor(255,0,0));
+		p.drawLine(left[0].u.x,left[0].u.y,left[0].b.x,left[0].b.y);
+		p.drawLine(right[0].u.x,right[0].u.y,right[0].b.x,right[0].b.y);
+		p.end();
+
 		return test_image;
 	}
 	else
 	{
-		
+
 		p.setPen(QColor(255,0,0));
 
 		optimization_phase1(0);
@@ -1722,13 +1777,13 @@ void optimization_phase1(int tag){
 
 cv::Mat getCostMatrix(cv::Mat orig_mat)
 {
-	Mat cost(orig_mat.rows,orig_mat.cols-2,CV_8UC1);
+	Mat cost(orig_mat.rows,orig_mat.cols-2,CV_32SC1);
 	int nl = orig_mat.rows;
 	int nc = orig_mat.cols;
 	for (int i = 0; i<nl;i++)
 	{
 		uchar* data= orig_mat.ptr<uchar>(i);
-		uchar* dsc = cost.ptr<uchar>(i);
+		int* dsc = cost.ptr<int>(i);
 		int distance = 0;
 		for (int j =0;j<nc-2;j++)
 		{
@@ -1740,19 +1795,20 @@ cv::Mat getCostMatrix(cv::Mat orig_mat)
 			{
 				dsc[j] = (abs(data[j*3+0]-data[(j+2)*3+0])+abs(data[j*3+1]-data[(j+2)*3+1])+abs(data[j*3+2]-data[(j+2)*3+2])) ;
 				dsc[j] += (abs(data[j*3+0]-data[(j+1)*3+0])+abs(data[j*3+1]-data[(j+1)*3+1])+abs(data[j*3+2]-data[(j+1)*3+2])) ;
+				dsc[j] += (abs(data[(j+2)*3+0]-data[(j+1)*3+0])+abs(data[(j+2)*3+1]-data[(j+1)*3+1])+abs(data[(j+2)*3+2]-data[(j+1)*3+2])) ;
 			}			
 		}
-		for (int j =1;j<nc-3;j++)
-		{
-			if (orig_mat.channels()==1)
-			{
-				dsc[j] += (abs(data[(j-1)*3]-data[(j+3)*3])+abs(data[j*3]-data[(j+3)*3])+abs(data[j*3]-data[(j+3)*3]));
-			}
-			else
-			{
-				dsc[j] += (abs(data[(j-1)*3+0]-data[(j+3)*3+0])+abs(data[(j-1)*3+1]-data[(j+3)*3+1])+abs(data[(j-1)*3+2]-data[(j+3)*3+2])) ;
-			}			
-		}
+		//for (int j =1;j<nc-3;j++)
+		//{
+		//	if (orig_mat.channels()==1)
+		//	{
+		//		dsc[j] += (abs(data[(j-1)*3]-data[(j+3)*3])+abs(data[j*3]-data[(j+3)*3])+abs(data[j*3]-data[(j+3)*3]));
+		//	}
+		//	else
+		//	{
+		//		dsc[j] += (abs(data[(j-1)*3+0]-data[(j+3)*3+0])+abs(data[(j-1)*3+1]-data[(j+3)*3+1])+abs(data[(j-1)*3+2]-data[(j+3)*3+2])) ;
+		//	}			
+		//}
 	}
 	imwrite("cost.jpg",cost);
 	return cost;
@@ -1779,8 +1835,8 @@ std::vector<TargetPath> getTargetPath(cv::Mat cost)
 	for (int i=1; i<cost.rows;i++)
 	{
 		int* res_data= res_mat.ptr<int>(i);
-		uchar* cost_data= cost.ptr<uchar>(i-1);
-		uchar* cost_data_this= cost.ptr<uchar>(i);
+		int* cost_data= cost.ptr<int>(i-1);
+		int* cost_data_this= cost.ptr<int>(i);
 		if (i==1)
 		{
 			int* base_data= res_mat.ptr<int>(i-1);
@@ -1823,7 +1879,7 @@ std::vector<TargetPath> getTargetPath(cv::Mat cost)
 		tmp.variance = 0;
 		for (int i=cost.rows-1; i>0;i--)
 		{
-			uchar* cost_data= cost.ptr<uchar>(i-1);
+			int* cost_data= cost.ptr<int>(i-1);
 			if (j==0)
 			{
 				tmp.path.push_back(cv::Point2i(cost_data[j]>cost_data[j+1]?j:j+1,i-1));
@@ -1853,4 +1909,97 @@ std::vector<TargetPath> getTargetPath(cv::Mat cost)
 	}
 	sort(TargetPathSet.begin(),TargetPathSet.end(),sort_path_func);
 	return TargetPathSet;
+}
+
+double getDistance(cv::Point2i p1,cv::Point2i p2,cv::Point2i d){
+	if (p1.x==p2.x)
+	{
+		return abs(d.x-p1.x);
+	}
+	else
+	{
+		double k,b;
+		k = (p1.y-p2.y)/(p1.x-p2.x);
+		b= p1.y-p1.x*k;
+		return abs(d.y-k*d.x-b)/sqrt(k*k+1);
+	}
+
+}
+double getLineFeature(cv::Point2i u,cv::Point2i l,const Mat &cost_src){
+	double res =0;
+	double dis = getDistance(u,l,opt_objRect.center);
+	u.x-=x_offset;
+	l.x-=x_offset;
+	u.y-=y_offset;
+	l.y-=y_offset;
+	QImage tmpImage = opt_orig_image.copy();
+	string pname;
+	//qDebug()<<sobel_src.channels();
+	if (u.x == l.x)
+	{
+		for (int i=u.y;i<l.y;i++)
+		{
+			res += cost_src.at<int>(i,u.x);
+			//qDebug()<<(int)sobel_src.at<char>(i,u.x);
+			tmpImage.setPixel(QPoint(u.x+x_offset-1,i+y_offset),0xFFFF0000);
+		}
+		pname += ConvertToString(res); 
+		pname = pname +"_"+ConvertToString(dis); 
+		res/=(dis*dis);
+		pname = ConvertToString(res)+"_"+pname;
+	}
+	else
+	{
+		double k,b;
+		k = (u.y-l.y)/(u.x-l.x);
+		b= u.y-u.x*k;
+		for(int i=u.y;i<l.y;i++)
+		{
+			int tmp_x = (i-b)/k;
+			if (tmp_x<0)
+			{
+				tmp_x=0;
+			}
+			if (tmp_x>=cost_src.cols)
+			{
+				tmp_x=cost_src.cols-1;
+			}
+			res += cost_src.at<int>(i,tmp_x);
+			//qDebug()<<(int)sobel_src.at<char>(i,(i*b+c)/(0-a));
+			tmpImage.setPixel(QPoint((i-b)/k+x_offset-1,i+y_offset),0xFFFF0000);
+		}
+		pname += ConvertToString(res);      
+		tmpImage.setPixel(QPoint(opt_objRect.center.x,opt_objRect.center.y),0xFFFF0000);
+		pname = pname +"_"+ConvertToString(dis); 
+		res/=(dis*dis);
+		pname = ConvertToString(res)+"_"+pname;
+	}
+	pname+= "_"+ConvertToString(u.x)+"_"+ConvertToString(u.y)+"_"+ConvertToString(l.x)+"_"+ConvertToString(l.y);
+	//if (res>10)
+	//{
+	//		tmpImage.save(("tmpres\\"+pname+".jpg").c_str(),"JPEG");
+	//}
+
+	return res;
+}
+
+
+std::vector<CandidateLine> getCandidateLines(QRect rect, const Mat &cost_src){
+	std::vector<CandidateLine> res;
+	x_offset = rect.topLeft().x();
+	y_offset = rect.topLeft().y();
+	for (int i=rect.topLeft().x();i<=rect.topRight().x()-2;i++)
+	{
+		CandidateLine tmp;
+		for (int j=rect.bottomLeft().x();j<=rect.bottomRight().x()-2;j++)
+		{	
+
+			tmp.b = cv::Point2i(j,rect.bottomLeft().y());
+			tmp.u = cv::Point2i(i,rect.topLeft().y());
+			tmp.cost = getLineFeature(tmp.u,tmp.b,cost_src);
+			res.push_back(tmp);
+		}
+		
+	}
+	return res;
 }
