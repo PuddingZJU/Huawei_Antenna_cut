@@ -43,7 +43,7 @@ std::string ConvertToString(T value) {
 struct lable_route{
 	int l,val;
 };
-int x_offset,y_offset,use_file=1,use_feature=4,use_color=0,use_enhance=1,use_gmm=0,isright=0,get_sobel=0;
+int x_offset,y_offset,use_file=0,use_feature=4,use_color=0,use_enhance=1,use_gmm=0,isright=0,get_sobel=0;
 void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRect,cv::RotatedRect _backgroundRect);
 double opt_l_high,opt_l_low,opt_x_high,opt_x_low;
 void set_x_offset(int x_offset);
@@ -323,14 +323,15 @@ void Segmentation::ExportMaskImage(){
 		QImage res = mask_result.alphaChannel();
 		for(int i=0;i<res.width();i++){
 			for(int j=0;j<res.height();j++){
-				QColor tmp = QColor::fromRgba(res.pixel(i,j));
-				if(tmp.red()==0){
+				QColor tmp = QColor::fromRgba(mask_result.pixel(i,j));
+				//res.setPixel(i,j,qGray(tmp.rgb()));
+				if(tmp.red()<128){
 					//tmp.setRgb(255,255,255);
-					res.setPixel(i,j,255);
+					res.setPixel(i,j,0);
 				}
 				else{
-					tmp.setRgb(0,0,0);
-					res.setPixel(i,j,0);
+					//tmp.setRgb(0,0,0);
+					res.setPixel(i,j,255);
 				}
 			}
 		}
@@ -534,17 +535,17 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 	pth += ".input";
 	if(!use_file){
 		std::ofstream out;
-		out.open(pth);
+		//out.open(pth);
 		for(int i=0;i<mask_img.width();i++){
 			for(int j=0;j<mask_img.height();j++){
 				QColor tmp = QColor::fromRgba(mask_img.pixel(i,j));
 				if(tmp.red()==255){
-					out<<"o "<<i<<" "<<j<<endl;
+					//out<<"o "<<i<<" "<<j<<endl;
 					objectPoints.push_back(cv::Point2i(i,j));
 				}
 				if(tmp.red()==0){
 					backgroundPoints.push_back(cv::Point2i(i,j));
-					out<<"b "<<i<<" "<<j<<endl;
+					//out<<"b "<<i<<" "<<j<<endl;
 				}
 			}
 		}
@@ -708,24 +709,60 @@ QImage Segmentation::excute(ImageWin* current_imgWin)
 		Mat l_m,r_m,l_lab,r_lab;
 		QImage2Mat(Limage,l_m);  
 		QImage2Mat(Rimage,r_m);
-		imwrite("l.jpg",l_m);
-		imwrite("r.jpg",r_m);
+		//imwrite("l.jpg",l_m);
+		//imwrite("r.jpg",r_m);
 		cvtColor(l_m,l_lab,CV_RGB2Lab);
 		cvtColor(r_m,r_lab,CV_RGB2Lab);
-		imwrite("l_lab.jpg",l_lab);
-		imwrite("r_lab.jpg",r_lab);
+		//imwrite("l_lab.jpg",l_lab);
+		//imwrite("r_lab.jpg",r_lab);
 		Mat cost_l,cost_r;
+
 		cost_l = getCostMatrix(l_m);
 		cost_r = getCostMatrix(r_m);
 		left = getCandidateLines(QRect(QPoint(lt.x,lt.y),QPoint(lb.x,lb.y)),cost_l);
 		right = getCandidateLines(QRect(QPoint(rt.x,rt.y),QPoint(rb.x,rb.y)),cost_r);
 		sort(left.begin(),left.end(),sort_lines);
 		sort(right.begin(),right.end(),sort_lines);
+		CvPoint lpt,lpb,rpt,rpb;
+		lpt.y=opt_objRectPoints[1].y;
+		lpb.y=opt_objRectPoints[0].y;
+		rpt.y=opt_objRectPoints[2].y;
+		rpb.y=opt_objRectPoints[3].y;
+		double k1,k2,b1,b2;
+		if (left[0].u.x-left[0].b.x == 0)
+		{
+			lpt.x = left[0].u.x;
+			lpb.x = left[0].u.x;
+		}
+		else{
+			k1 = (left[0].u.y-left[0].b.y)/(left[0].u.x-left[0].b.x);
+			b1=left[0].u.y-left[0].u.x*k1;
+			lpt.x = (lpt.y-b1)/k1;
+			lpb.x = (lpb.y-b1)/k1;
+		}
+		if (right[0].u.x-right[0].b.x == 0)
+		{
+			rpt.x = right[0].u.x;
+			rpb.x = right[0].u.x;
+		}
+		else{
+			k2 = (right[0].u.y-right[0].b.y)/(right[0].u.x-right[0].b.x);
+			b2 =right[0].u.y-right[0].u.x*k2;
+			rpt.x = (rpt.y-b2)/k2;
+			rpb.x = (rpb.y-b2)/k2;
+		}
 		p.setPen(QColor(255,0,0));
-		p.drawLine(left[0].u.x,left[0].u.y,left[0].b.x,left[0].b.y);
-		p.drawLine(right[0].u.x,right[0].u.y,right[0].b.x,right[0].b.y);
+		p.drawLine(lpt.x,lpt.y,lpb.x,lpb.y);
+		p.drawLine(rpt.x,rpt.y,rpb.x,rpb.y);
 		p.end();
-
+		CvScalar Color=CV_RGB(255,255,255);
+		CvPoint rec_rect[4]={lpb,lpt,rpt,rpb};
+		IplImage *res=cvCreateImage(cvSize(image.width(),image.height()),8,3);
+		cvZero(res);
+		cvFillConvexPoly(res,rec_rect,4,Color,CV_AA,0);
+		//cvShowImage("after", res);
+		mask_result = mat2qimage( Mat(res,1));
+		//mask_result.save("mask_result.bmp","BMP");
 		return test_image;
 	}
 	else
@@ -1384,7 +1421,30 @@ void Segmentation::Reset()
 
 	current_imgWin->update();
 }
-
+void correctRect(cv::Point2f *src){
+	std::vector<cv::Point2i> SrcPointsVec,RecPointsVec;
+	for (int i=0;i<4;i++)
+	{
+		SrcPointsVec.push_back(src[i]);
+	}
+	cv::convexHull(SrcPointsVec,RecPointsVec,false,true);
+	double maxdis = 0;
+	int sp;
+	for (int i=0;i<2;i++)
+	{
+		double dis = sqrt((double)((RecPointsVec[i].x-RecPointsVec[i+1].x)*(RecPointsVec[i].x-RecPointsVec[i+1].x)+(RecPointsVec[i].y-RecPointsVec[i+1].y)*(RecPointsVec[i].y-RecPointsVec[i+1].y)));
+		if (maxdis<dis)
+		{
+			maxdis=dis;
+			sp=i;
+		}
+	}
+	sp = RecPointsVec[sp].y>RecPointsVec[sp+2].y?sp:(sp+2);
+	for (int i=0;i<4;i++)
+	{
+		src[i] = RecPointsVec[(i+sp)%4];
+	}
+}
 void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRect,cv::RotatedRect _backgroundRect)
 {
 	opt_orig_image = _orig_image.copy();
@@ -1392,58 +1452,8 @@ void opt_data_init(QImage _orig_image,QImage _mask_image,cv::RotatedRect _objRec
 	opt_objRect = _objRect;
 	opt_objRect.points(opt_objRectPoints);
 	opt_backgroundRect.points(opt_backgroundRectPoints);
-	cv::Point2f fixRect[4];
-	for (int i=0;i<4;i++)
-	{
-		int ii = opt_objRect.center.x < opt_objRectPoints[i].x;
-		int jj = opt_objRect.center.y < opt_objRectPoints[i].y;
-		if (ii == 0 && jj == 0)
-		{
-			fixRect[1] = opt_objRectPoints[i];
-		}
-		if (ii == 0 && jj == 1)
-		{
-			fixRect[0] = opt_objRectPoints[i];
-		}
-		if (ii == 1 && jj == 1)
-		{
-			fixRect[3] = opt_objRectPoints[i];
-		}
-		if (ii == 1 && jj == 0)
-		{
-			fixRect[2] = opt_objRectPoints[i];
-		}
-	}
-	for (int i=0;i<4;i++)
-	{
-		opt_objRectPoints[i] = fixRect[i];
-	}
-
-	for (int i=0;i<4;i++)
-	{
-		int ii = opt_backgroundRect.center.x < opt_backgroundRectPoints[i].x;
-		int jj = opt_backgroundRect.center.y < opt_backgroundRectPoints[i].y;
-		if (ii == 0 && jj == 0)
-		{
-			fixRect[1] = opt_backgroundRectPoints[i];
-		}
-		if (ii == 0 && jj == 1)
-		{
-			fixRect[0] = opt_backgroundRectPoints[i];
-		}
-		if (ii == 1 && jj == 1)
-		{
-			fixRect[3] = opt_backgroundRectPoints[i];
-		}
-		if (ii == 1 && jj == 0)
-		{
-			fixRect[2] = opt_backgroundRectPoints[i];
-		}
-	}
-	for (int i=0;i<4;i++)
-	{
-		opt_backgroundRectPoints[i] = fixRect[i];
-	}
+	correctRect(opt_backgroundRectPoints);
+	correctRect(opt_objRectPoints);
 	opt_l_high = std::min(opt_backgroundRectPoints[0].y,opt_backgroundRectPoints[3].y);
 	opt_l_low = std::max(opt_backgroundRectPoints[1].y,opt_backgroundRectPoints[2].y);
 	x_offset = 3;
@@ -1810,7 +1820,7 @@ cv::Mat getCostMatrix(cv::Mat orig_mat)
 		//	}			
 		//}
 	}
-	imwrite("cost.jpg",cost);
+	//imwrite("cost.jpg",cost);
 	return cost;
 }
 bool sort_func(lable_route a,lable_route b){
@@ -1925,13 +1935,19 @@ double getDistance(cv::Point2i p1,cv::Point2i p2,cv::Point2i d){
 	}
 
 }
+
 double getLineFeature(cv::Point2i u,cv::Point2i l,const Mat &cost_src){
 	double res =0;
 	double dis = getDistance(u,l,opt_objRect.center);
+
 	u.x-=x_offset;
 	l.x-=x_offset;
 	u.y-=y_offset;
 	l.y-=y_offset;
+	if (dis < min(opt_objRect.size.height,opt_objRect.size.width)/2 || dis > max(opt_backgroundRect.size.height,opt_backgroundRect.size.width)/2)
+	{
+		return 0.00;
+	}
 	QImage tmpImage = opt_orig_image.copy();
 	string pname;
 	//qDebug()<<sobel_src.channels();
@@ -1999,7 +2015,7 @@ std::vector<CandidateLine> getCandidateLines(QRect rect, const Mat &cost_src){
 			tmp.cost = getLineFeature(tmp.u,tmp.b,cost_src);
 			res.push_back(tmp);
 		}
-		
+
 	}
 	return res;
 }

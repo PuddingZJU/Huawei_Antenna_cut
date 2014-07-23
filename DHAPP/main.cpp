@@ -6,9 +6,7 @@ int main(int argc, char *argv[])
 {
 	
 	QApplication a(argc, argv);
-#ifndef _DEBUG 
-	QApplication::setLibraryPaths(QStringList(QCoreApplication::applicationDirPath()+"/plugins"));
-#endif 
+	QApplication::setLibraryPaths(QStringList(QCoreApplication::applicationDirPath()+"/plugins")); 
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 	MainWindow w;
 	w.show();
